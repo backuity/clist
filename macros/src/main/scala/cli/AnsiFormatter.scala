@@ -1,3 +1,4 @@
+package cli
 
 import scala.util.parsing.combinator.RegexParsers
 
@@ -10,6 +11,9 @@ object AnsiFormatter {
     private def parseAndFormat(fmt: Formatter)(args: Seq[Any]): String = {
       val ipl = sc.standardInterpolator(identity, args)
       val p = FLParser.parseAll(FLParser.content, ipl)
+//      p match {
+//        case FLParser.NoSuccess(msg, next) => Console.err.println(msg)
+//      }
       val sb = new StringBuilder
       fmt.format(p.get, Codes(), sb)
       sb.toString()
@@ -44,14 +48,14 @@ object AnsiFormatter {
     val R_BRACKET: Parser[String] = """}"""
 
     lazy val escapedBS: Parser[StringExp] = BACKSLASH ~ BACKSLASH ^^
-      { case a ~ b => StringExp(a + b) }
+        { case a ~ b => StringExp(a + b) }
 
     lazy val raw_rB: Parser[StringExp] = R_BRACKET ^^ (StringExp apply _)
 
     lazy val word: Parser[String] = """\w+"""r
 
     lazy val command: Parser[CommandExp] = BACKSLASH ~ word ~ L_BRACKET ~ content ~ R_BRACKET ^^
-      { case _ ~ w ~ _ ~ c ~ _ => CommandExp(w, c) }
+        { case _ ~ w ~ _ ~ c ~ _ => CommandExp(w, c) }
 
     lazy val raw_text: Parser[String] = """[^\\}]+"""r
 
