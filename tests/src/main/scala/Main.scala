@@ -6,30 +6,32 @@ object Main {
   import Cli.arg
 
   trait GlobalOptions { this : Command =>
-    var opt1 = arg[String](name = "1", default = "helloX")
-    var opt2 = arg[String](name = "2", default = "haha")
+    var opt1 = arg[Boolean](name = "1",
+                           description = "This is a wonderful command",
+                           default = false)
+    var opt2 = arg[String](name = "opt2",
+                           abbrev = "2",
+                           description = "Man you should try this one",
+                           default = "haha")
   }
   
   trait SomeCategoryOptions extends GlobalOptions { this : Command =>
-    private var optA = arg[Int](name = "A", default = 1)
-    var optB = arg[Int](name = "B", default = 123)
+    var optA = arg[Int](name = "A", default = 1)
+    var optB = arg[Boolean](description = "some flag",
+                            default = true)
   }
 
   object Run extends Command with SomeCategoryOptions {
     var runSpecific = arg[Long](default = 123L)
   }
 
-  object Show extends Command(name = "cho") {
+  object Show extends Command(name = "cho",
+                              description = "show the shit!") with GlobalOptions {
   }
 
   def main(args: Array[String]) {
 
-    println(Run.arguments.mkString("\n\t"))
-
-    println("Run.name = " + Run.label)
-    println("Show.name = " + Show.label)
-
-    println("Usage : " + Usage.Default.show(Commands(Run,Show)))
+    println(Usage.Default.show(Commands(Run,Show)))
     
     Cli.parse(args).version("1.2").withCommand(Run) {
       println("Parsed with run : optB=" + Run.optB)

@@ -4,7 +4,7 @@ import cli.Cli.{Argument, Command}
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-class ArgumentBuilder[T : Read](command: Command, varName: String) {
+class ArgumentBuilder[T : Read : Manifest](command: Command, varName: String) {
 
   /**
    * - an optional argument must have a default value
@@ -15,14 +15,13 @@ class ArgumentBuilder[T : Read](command: Command, varName: String) {
             required: Boolean = false,
             default: T = null.asInstanceOf[T]) : T = {
 
-    println("Configuring command " + command + " - varName = " + varName + " - name = " + name)
-
     if( default == null && !required ) {
       throw new IllegalArgumentException("An optional argument must have a default value")
     }
 
     command.addArgument(Argument(
         implicitly[Read[T]],
+        manifest[T].runtimeClass,
         Option(name).orElse(Some(varName.trim)),
         Option(description),
         Option(abbrev),
@@ -36,6 +35,7 @@ class ArgumentBuilder[T : Read](command: Command, varName: String) {
 object Cli {
 
   case class Argument[T](reader: Read[T],
+                          tpe: Class[_],
                           name: Option[String],
                           description: Option[String],
                           abbrev: Option[String],
@@ -48,9 +48,10 @@ object Cli {
 
   object Commands {
     def apply[T <: Command : Manifest](commands : T*) : Commands = {
-      println("Root class = " + manifest[T])
+      if( commands.size < 2 ) sys.error("A Commands must have at least 2 commands")
 
-      null
+      val commonArgs = commands.map(_.arguments).reduce( _.intersect(_) )
+      new Commands(commonArgs, commands.toSet)
     }
   }
 
@@ -71,7 +72,7 @@ object Cli {
   def arg[T] : ArgumentBuilder[T] = macro arg_impl[T]
 
   /** @param name if not specified the lower-cased class name will be used */
-  abstract class Command(name: String = null) {
+  abstract class Command(name: String = null, val description: String = "") {
 
     val _name = if( name != null ) name else {
       val className = getClass.getSimpleName.toLowerCase
@@ -104,49 +105,100 @@ object Cli {
       override def show(commands: Commands): String = {
 
         val usage = new java.lang.StringBuilder()
+        var indentLevel = 0
+        var beginning = true
 
-        def addLine(str: String = "") {
-          usage.append(str + "\n")
+        def incIndent(): Unit = {
+          indentLevel += 1
+        }
+        def decIndent(): Unit = {
+          indentLevel -= 1
+        }
+        def indent( f : => Unit ): Unit = {
+          incIndent()
+          f
+          decIndent()
         }
 
-        addLine(ansi"Hey \Underline{Usage}")
+        def addLine(str: String = "") {
+          add(str + "\n")
+        }
+        def add(str: String): Unit = {
+          val pad = if( beginning ) "\t" * indentLevel else ""
+          usage.append(pad + str)
+          if( str.endsWith("\n") ) {
+            beginning = true
+          } else {
+            beginning = false
+          }
+        }
+
+        def argLabel(arg: Argument[_]) : String = {
+          (arg.abbrev match {
+            case Some(abbrev) => "-" + abbrev + (if( arg.name.isDefined ) ", " else "")
+            case None         => ""
+          }) + (arg.name match {
+            case Some(name) => "--" + name + (if( arg.tpe == classOf[Int] || arg.tpe == classOf[Long] ) {
+              "=NUM"
+            } else if( arg.tpe == classOf[String] ) {
+              "=STRING"
+            } else "")
+            case None       => ""
+          })
+        }
+
+        def argText(labelMaxSize: Int, arg: Argument[_]) : String = {
+          val label = argLabel(arg)
+          val description = arg.description.getOrElse("")
+          val default = (arg.default match {
+            case Some(d) => ansi"\italic{(default: $d)}"
+            case None    => ""
+          })
+          val padding = " " * (labelMaxSize - label.length)
+
+          ansi"\yellow{$label}" + (if( description.isEmpty && default.isEmpty ) {
+            ""
+          } else {
+            padding + " : " + description + (if( !description.isEmpty && !default.isEmpty ) " " else "") + default
+          })
+        }
+
+        def addArguments(args: Set[Argument[_]]): Unit = {
+          val labelMaxSize = args.map(argLabel).map(_.length).max
+
+          for( arg <- args ) {
+            addLine(argText(labelMaxSize, arg))
+          }
+        }
+
+        addLine(ansi"\Underline{Usage}")
         addLine()
-        addLine(ansi" cli [options] \yellow{command} \bold{[command parameter(s)]} [command options]")
+        addLine(ansi" \bold{cli} \yellow{[options]} \bold{command} \yellow{[command options]}")
         addLine()
         addLine(ansi"\Underline{Options:}")
         addLine()
+        indent {
+          addArguments(commands.arguments)
+        }
 
-        //          _jCommander.parameters.findAll { !it.parameter.hidden() }.sort { it.names }.each { globalParam ->
-        //            LOG.info(
-        //              String.format(" @|yellow %-${_jCommander.parameters.collect { computeOptionSyntax(it) }*.size().max()}s|@ : %s %s",
-        //                computeOptionSyntax(globalParam),
-        //                globalParam.description,
-        //                computeDefaultValue(globalParam) ? "(Default: ${computeDefaultValue(globalParam)})" : ""))
-        //          }
-        //          println("")
-        //          println("@|underline Commands:|@")
-        //          _jCommander.commands.each { command, commandDescription ->
-        //            LOG.info("")
-        //            List<String> commandHelp = new ArrayList<>()
-        //            commandHelp << _scriptName
-        //            commandHelp << "[options]"
-        //            commandHelp << "@|yellow ${command}|@"
-        //            if (commandDescription.mainParameter) {
-        //              commandHelp << "@|bold ${commandDescription.mainParameter?.description}|@"
-        //            }
-        //            if (_jCommander.commands[command].parameters.findAll { !it.parameter.hidden() }.size() > 0) {
-        //              commandHelp << "[${command} options]"
-        //            }
-        //            LOG.info(" ${commandHelp.join(" ")}")
-        //            commandDescription.parameters.findAll { !it.parameter.hidden() }.sort { it.names }.each { commandParam ->
-        //              LOG.info(
-        //                String.format(
-        //                  " @|yellow %-${commandDescription.parameters.findAll { !it.parameter.hidden() }.collect { computeOptionSyntax(it) }*.trim()*.size().max()}s|@ : %s %s",
-        //                  computeOptionSyntax(commandParam),
-        //                  commandParam.description,
-        //                  computeDefaultValue(commandParam) ? "(Default: ${computeDefaultValue(commandParam)})" : ""))
-        //            }
-        //        }
+        addLine()
+        addLine(ansi"\Underline{Commands:}")
+        indent {
+          for (command <- commands.commands) {
+            addLine()
+            add(ansi"\bold{${command.label}}")
+            val commandSpecificArgs = command.arguments -- commands.arguments
+            val description = if( command.description != "" ) " : " + command.description else ""
+            if (commandSpecificArgs.isEmpty) {
+              addLine(description)
+            } else {
+              addLine(" [command options]" + description)
+              indent {
+                addArguments(commandSpecificArgs)
+              }
+            }
+          }
+        }
 
         usage.toString
       }
