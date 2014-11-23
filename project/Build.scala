@@ -37,7 +37,7 @@ object CliBuild extends Build {
       name := "cli",
       libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-reflect" % _),
       libraryDependencies ++= Seq(
-          "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2",
+          "org.backuity" %% "ansi-interpolator" % "1.1" % "provided",
 
           // Tests
           "org.backuity" %% "matchete" % "1.10" % "test",

@@ -69,6 +69,9 @@ object Cli {
     c.Expr[ArgumentBuilder[T]](q"""new ArgumentBuilder(this, ${term.name.toString})""")
   }
 
+  // We'd really like to have default parameters here but we can't due
+  // to https://issues.scala-lang.org/browse/SI-5920
+  // The workaround is to use the apply method of the ArgumentBuilder
   def arg[T] : ArgumentBuilder[T] = macro arg_impl[T]
 
   /** @param name if not specified the lower-cased class name will be used */
@@ -100,7 +103,8 @@ object Cli {
   object Usage {
 
     object Default extends Usage {
-      import AnsiFormatter._
+
+      import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
       override def show(commands: Commands): String = {
 
@@ -150,13 +154,13 @@ object Cli {
         def argText(labelMaxSize: Int, arg: Argument[_]) : String = {
           val label = argLabel(arg)
           val description = arg.description.getOrElse("")
-          val default = (arg.default match {
-            case Some(d) => ansi"\italic{(default: $d)}"
-            case None    => ""
-          })
+          val default = arg.default match {
+            case Some(d) => ansi"%italic{(default: $d)}"
+            case None => ""
+          }
           val padding = " " * (labelMaxSize - label.length)
 
-          ansi"\yellow{$label}" + (if( description.isEmpty && default.isEmpty ) {
+          ansi"%yellow{$label}" + (if( description.isEmpty && default.isEmpty ) {
             ""
           } else {
             padding + " : " + description + (if( !description.isEmpty && !default.isEmpty ) " " else "") + default
@@ -171,22 +175,22 @@ object Cli {
           }
         }
 
-        addLine(ansi"\Underline{Usage}")
+        addLine(ansi"%underline{Usage}")
         addLine()
-        addLine(ansi" \bold{cli} \yellow{[options]} \bold{command} \yellow{[command options]}")
+        addLine(ansi" %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}")
         addLine()
-        addLine(ansi"\Underline{Options:}")
+        addLine(ansi"%underline{Options:}")
         addLine()
         indent {
           addArguments(commands.arguments)
         }
 
         addLine()
-        addLine(ansi"\Underline{Commands:}")
+        addLine(ansi"%underline{Commands:}")
         indent {
           for (command <- commands.commands) {
             addLine()
-            add(ansi"\bold{${command.label}}")
+            add(ansi"%bold{${command.label}}")
             val commandSpecificArgs = command.arguments -- commands.arguments
             val description = if( command.description != "" ) " : " + command.description else ""
             if (commandSpecificArgs.isEmpty) {
@@ -203,27 +207,6 @@ object Cli {
         usage.toString
       }
     }
-
-//        private String computeOptionSyntax(ParameterDescription parameterDescription) {
-//          parameterDescription.parameter.names().collect { paramName ->
-//            if (parameterDescription.parameterized.type == Boolean) {
-//              "${paramName}"
-//            } else if (parameterDescription.parameterized.type == URL) {
-//              "${paramName}=URL"
-//            } else if (parameterDescription.parameterized.type.isEnum()) {
-//              "${paramName}=[${parameterDescription.parameterized.type.enumConstants.collect { it.toString().toLowerCase() }.join("|")}]"
-//            } else {
-//              "${paramName}=value"
-//            }
-//          }.join(", ")
-//        }
-//        private String computeDefaultValue(ParameterDescription parameterDescription) {
-//          if (parameterDescription.parameterized.type == Boolean && !parameterDescription.default) {
-//            "false"
-//          } else {
-//            parameterDescription.default ? parameterDescription.default?.toString()?.toLowerCase() : ""
-//          }
-//        }
   }
 
   class Parser {
@@ -251,8 +234,6 @@ object Cli {
       val commands = Commands(withCommands : _*)
 
       // TODO
-      //        println(usage.show(commands))
-      //println("Base type found : " + manifest[T])
       withCommands(0)
     }
 
