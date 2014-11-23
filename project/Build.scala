@@ -48,6 +48,12 @@ object CliBuild extends Build {
 
   lazy val tests = Project("tests",
     file("tests"),
-    settings = buildSettings ++ Seq(publishArtifact := false)
+    settings = buildSettings ++ Seq(
+      libraryDependencies ++= Seq(
+        // Tests
+        "org.backuity" %% "matchete" % "1.10" % "test",
+        "com.novocode" % "junit-interface" % "0.11" % "test"),
+
+      publishArtifact := false)
   ) dependsOn macros
 }
