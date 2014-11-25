@@ -35,7 +35,16 @@ object Read {
   implicit val longRead: Read[Long] = reads { _.toLong }
   implicit val bigIntRead: Read[BigInt] = reads { BigInt(_) }
   implicit val bigDecimalRead: Read[BigDecimal] = reads { BigDecimal(_) }
+
+  implicit def enumRead[T <: Enum[T] : Manifest]: Read[T] = new Read[T] {
+    override def arity: Int = 1
+    override def reads: (String) => T = { s =>
+      Enum.valueOf(manifest[T].runtimeClass.asInstanceOf[Class[T]], s.toUpperCase)
+    }
+  }
+
   implicit val yyyymmdddRead: Read[Calendar] = calendarRead("yyyy-MM-dd")
+
   def calendarRead(pattern: String): Read[Calendar] = calendarRead(pattern, Locale.getDefault)
   def calendarRead(pattern: String, locale: Locale): Read[Calendar] =
     reads { s =>
@@ -44,8 +53,11 @@ object Read {
       c.setTime(fmt.parse(s))
       c
     }
+
   implicit val fileRead: Read[File] = reads { new File(_) }
+
   implicit val uriRead: Read[URI] = reads { new URI(_) }
+
   implicit def tupleRead[A1: Read, A2: Read]: Read[(A1, A2)] = new Read[(A1, A2)] {
     val arity = 2
     val reads = { (s: String) =>
@@ -54,11 +66,13 @@ object Read {
       }
     }
   }
+
   private def splitKeyValue(s: String): (String, String) =
     s.indexOf('=') match {
       case -1 => throw new IllegalArgumentException("Expected a key=value pair")
       case n: Int => (s.slice(0, n), s.slice(n + 1, s.length))
     }
+
   implicit val unitRead: Read[Unit] = new Read[Unit] {
     val arity = 0
     val reads = { (s: String) => () }

@@ -10,6 +10,8 @@ object Main {
     var opt2 = arg[String](abbrev = "2",
                            description = "Man you should try this one",
                            default = "haha")
+
+    var season = arg[Season](default = Season.WINTER)
   }
   
   trait SomeCategoryOptions extends GlobalOptions { this : Command =>

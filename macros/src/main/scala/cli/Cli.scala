@@ -66,13 +66,12 @@ class ArgumentBuilder[T : Read : Manifest](command: Command, varName: String) {
     }
 
     command.addArgument(Argument(
-      implicitly[Read[T]],
       manifest[T].runtimeClass,
       if( abbrevOnly != null ) None else Option(name).orElse(Some(varName.trim)),
       Option(description),
       Option(abbrevOnly).orElse(Option(abbrev)),
       required,
-      Option(default)))
+      Option(default))(implicitly[Read[T]]))
 
     default
   }

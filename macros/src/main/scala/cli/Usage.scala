@@ -10,6 +10,24 @@ object Usage {
 
     import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
+    def showDefault(t : Any): String = {
+      if( t.getClass.isEnum ) {
+        t.toString.toLowerCase
+      } else {
+        t.toString
+      }
+    }
+
+    def showValuesFor(clazz : Class[_]) : String = {
+      if( clazz == classOf[Int] || clazz == classOf[Long] ) {
+        "=NUM"
+      } else if( clazz == classOf[String] ) {
+        "=STRING"
+      } else if( clazz.isEnum ) {
+        "=" + clazz.getEnumConstants.map(_.toString.toLowerCase).mkString("|")
+      } else ""
+    }
+
     override def show(commands: Commands): String = {
 
       val usage = new java.lang.StringBuilder()
@@ -36,11 +54,7 @@ object Usage {
           case Some(abbrev) => "-" + abbrev + (if( arg.name.isDefined ) ", " else "")
           case None         => ""
         }) + (arg.name match {
-          case Some(name) => "--" + name + (if( arg.tpe == classOf[Int] || arg.tpe == classOf[Long] ) {
-            "=NUM"
-          } else if( arg.tpe == classOf[String] ) {
-            "=STRING"
-          } else "")
+          case Some(name) => "--" + name + showValuesFor(arg.tpe)
           case None       => ""
         })
       }
@@ -49,7 +63,7 @@ object Usage {
         val label = argLabel(arg)
         val description = arg.description.getOrElse("")
         val default = arg.default match {
-          case Some(d) if d != false => ansi"%italic{(default: $d)}"
+          case Some(d) if d != false => ansi"%italic{(default: ${showDefault(d)})}"
           case _ => ""
         }
         val padding = " " * (labelMaxSize - label.length)
