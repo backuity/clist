@@ -1,26 +1,27 @@
-import cli.{Command,Commands,Cli,ArgumentBuilder,Usage}
+import org.backuity.cli._
+import Cli._
 
 object Main {
 
-  import Cli.arg
-
   trait GlobalOptions { this : Command =>
-    var opt1 = arg[Boolean](name = "1",
+    var opt1 = opt[Boolean](name = "1",
                            description = "This is a wonderful command")
-    var opt2 = arg[String](abbrev = "2",
+    var opt2 = opt[String](abbrev = "2",
                            description = "Man you should try this one",
                            default = "haha")
 
-    var season = arg[Season](default = Season.WINTER)
+    var season = opt[Season](default = Season.WINTER)
   }
   
   trait SomeCategoryOptions extends GlobalOptions { this : Command =>
-    var optA = arg[Int](name = "A", default = 1)
-    var optB = arg[Boolean](description = "some flag")
+    var optA = opt[Int](name = "A", default = 1)
+    var optB = opt[Boolean](description = "some flag")
   }
 
   object Run extends Command with SomeCategoryOptions {
-    var runSpecific = arg[Long](default = 123L)
+    var target = arg[String]()
+
+    var runSpecific = opt[Long](default = 123L)
   }
 
   object Show extends Command(name = "cho",

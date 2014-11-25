@@ -1,4 +1,4 @@
-package cli
+package org.backuity.cli
 
 trait Read[A] { self =>
   def arity: Int

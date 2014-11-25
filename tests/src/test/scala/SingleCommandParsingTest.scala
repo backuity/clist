@@ -1,15 +1,14 @@
-import cli.{Command, Cli, ArgumentBuilder}
+import org.backuity.cli._
+import Cli.{arg,opt}
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
 
 class SingleCommandParsingTest extends JunitMatchers {
 
-  import Cli.arg
-
   object Run extends Command {
-    var opt1 = arg[Boolean](name = "1")
-    var opt2 = arg[String](default = "haha")
+    var opt1 = opt[Boolean](name = "1")
+    var opt2 = opt[String](default = "haha")
   }
 
   @Test

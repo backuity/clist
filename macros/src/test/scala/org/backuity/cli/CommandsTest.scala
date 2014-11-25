@@ -1,16 +1,12 @@
-package cli
+package org.backuity.cli
 
-import cli.Cli._
+import org.backuity.cli.Cli._
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
 class CommandsTest extends JunitMatchers {
 
   import CommandsTest._
-
-  def anArgument(name : String) = an[Argument[_]](s"argument named $name") {
-    case arg : Argument[_] => arg.name must_== Some(name)
-  }
 
   @Test
   def commandsShouldGuessGlobalOptions(): Unit = {
@@ -19,6 +15,10 @@ class CommandsTest extends JunitMatchers {
       anArgument("opt1"),
       anArgument("opt2"),
       anArgument("season"))
+  }
+
+  def anArgument(name : String) = an[CliArgument[_]](s"argument named $name") {
+    case arg : CliArgument[_] => arg.name must_== Some(name)
   }
 }
 

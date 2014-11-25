@@ -1,4 +1,4 @@
-package cli
+package org.backuity.cli
 
 trait Usage {
   def show(commands: Commands) : String
@@ -28,6 +28,8 @@ object Usage {
       } else ""
     }
 
+    val indentString = "   "
+
     override def show(commands: Commands): String = {
 
       val usage = new java.lang.StringBuilder()
@@ -40,7 +42,7 @@ object Usage {
 
       def addLine(str: String = ""): Unit = { add(str + "\n") }
       def add(str: String): Unit = {
-        val pad = if( beginning ) "\t" * indentLevel else ""
+        val pad = if( beginning ) indentString * indentLevel else ""
         usage.append(pad + str)
         if( str.endsWith("\n") ) {
           beginning = true
@@ -49,18 +51,18 @@ object Usage {
         }
       }
 
-      def argLabel(arg: Argument[_]) : String = {
+      def optLabel(arg: CliOption[_]) : String = {
         (arg.abbrev match {
-          case Some(abbrev) => "-" + abbrev + (if( arg.name.isDefined ) ", " else "")
+          case Some(abbrev) => "-" + abbrev + (if( arg.longName.isDefined ) ", " else "")
           case None         => ""
-        }) + (arg.name match {
+        }) + (arg.longName match {
           case Some(name) => "--" + name + showValuesFor(arg.tpe)
           case None       => ""
         })
       }
 
-      def argText(labelMaxSize: Int, arg: Argument[_]) : String = {
-        val label = argLabel(arg)
+      def optText(labelMaxSize: Int, arg: CliOption[_]) : String = {
+        val label = optLabel(arg)
         val description = arg.description.getOrElse("")
         val default = arg.default match {
           case Some(d) if d != false => ansi"%italic{(default: ${showDefault(d)})}"
@@ -75,11 +77,12 @@ object Usage {
         })
       }
 
-      def addArguments(args: Set[Argument[_]]): Unit = {
-        val labelMaxSize = args.map(argLabel).map(_.length).max
+      /** @param opts non empty */
+      def addOptions(opts: Set[CliOption[_]]): Unit = {
+        val labelMaxSize = opts.map(optLabel).map(_.length).max
 
-        for( arg <- args ) {
-          addLine(argText(labelMaxSize, arg))
+        for( opt <- opts ) {
+          addLine(optText(labelMaxSize, opt))
         }
       }
 
@@ -90,7 +93,7 @@ object Usage {
       addLine(ansi"%underline{Options:}")
       addLine()
       indent {
-        addArguments(commands.arguments)
+        addOptions(commands.options)
       }
 
       addLine()
@@ -99,14 +102,22 @@ object Usage {
         for (command <- commands.commands) {
           addLine()
           add(ansi"%bold{${command.label}}")
-          val commandSpecificArgs = command.arguments -- commands.arguments
+          val commandSpecificOpts = command.options -- commands.options
           val description = if( command.description != "" ) " : " + command.description else ""
-          if (commandSpecificArgs.isEmpty) {
-            addLine(description)
-          } else {
-            addLine(" [command options]" + description)
+
+          if( command.arguments.nonEmpty ) {
+            add(" " + command.arguments.map(arg => s"<${arg.name}>").mkString(" "))
+          }
+          if( commandSpecificOpts.nonEmpty ) {
+            add(" [command options]")
+          }
+          addLine(description)
+
+          // body
+          // TODO args
+          if( commandSpecificOpts.nonEmpty ) {
             indent {
-              addArguments(commandSpecificArgs)
+              addOptions(commandSpecificOpts)
             }
           }
         }

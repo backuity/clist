@@ -1,4 +1,4 @@
-package cli
+package org.backuity.cli
 
 class Parser {
   private var version : Option[String] = None
