@@ -39,15 +39,6 @@ object CommandsTest {
   object Run extends Command with SomeCategoryOptions {
     var runSpecific = opt[Long](default = 123L)
   }
-
-  object Show extends Command(name = "cho",
-    description = "show the shit!") with GlobalOptions {
-  }
-
+  object Show extends Command with GlobalOptions
   object Graph extends Command with SomeCategoryOptions
-
-  object Season extends Enumeration {
-    type Season = Value
-    val WINTER, SPRING, SUMMER, AUTUMN = Value
-  }
 }

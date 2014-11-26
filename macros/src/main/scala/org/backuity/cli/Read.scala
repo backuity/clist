@@ -9,6 +9,11 @@ trait Read[A] { self =>
     val reads = self.reads andThen f
   }
 }
+
+/**
+ * Note that we do not support scala Enumeration as this would require having a runtime dependency
+ * on the reflection API. On the other hand Java enums are supported.
+ */
 object Read {
   import java.io.File
   import java.net.URI
@@ -36,11 +41,8 @@ object Read {
   implicit val bigIntRead: Read[BigInt] = reads { BigInt(_) }
   implicit val bigDecimalRead: Read[BigDecimal] = reads { BigDecimal(_) }
 
-  implicit def enumRead[T <: Enum[T] : Manifest]: Read[T] = new Read[T] {
-    override def arity: Int = 1
-    override def reads: (String) => T = { s =>
-      Enum.valueOf(manifest[T].runtimeClass.asInstanceOf[Class[T]], s.toUpperCase)
-    }
+  implicit def javaEnumRead[T <: Enum[T] : Manifest]: Read[T] = reads { s =>
+    Enum.valueOf(manifest[T].runtimeClass.asInstanceOf[Class[T]], s.toUpperCase)
   }
 
   implicit val yyyymmdddRead: Read[Calendar] = calendarRead("yyyy-MM-dd")
