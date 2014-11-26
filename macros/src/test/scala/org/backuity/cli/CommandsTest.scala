@@ -11,33 +11,33 @@ class CommandsTest extends JunitMatchers {
   @Test
   def commandsShouldGuessGlobalOptions(): Unit = {
     val cmds = Commands(Run, Show, Graph)
-    cmds.arguments must contain(
-      anArgument("opt1"),
-      anArgument("opt2"),
-      anArgument("season"))
+    cmds.options must contain(
+      anOption("opt1"),
+      anOption("opt2"),
+      anOption("season"))
   }
 
-  def anArgument(name : String) = an[CliArgument[_]](s"argument named $name") {
-    case arg : CliArgument[_] => arg.name must_== Some(name)
+  def anOption(name : String) = an[CliOption[_]](s"argument named $name") {
+    case opt : CliOption[_] => opt.name must_== name
   }
 }
 
 object CommandsTest {
 
   trait GlobalOptions { this : Command =>
-    var opt1 = arg[Boolean]()
-    var opt2 = arg[String](default = "pouette")
+    var opt1 = opt[Boolean]()
+    var opt2 = opt[String](default = "pouette")
 
-    var season = arg[JavaSeason](default = JavaSeason.WINTER)
+    var season = opt[JavaSeason](default = JavaSeason.WINTER)
   }
 
   trait SomeCategoryOptions extends GlobalOptions { this : Command =>
-    var optA = arg[Int](default = 1)
-    var optB = arg[Boolean]()
+    var optA = opt[Int](default = 1)
+    var optB = opt[Boolean]()
   }
 
   object Run extends Command with SomeCategoryOptions {
-    var runSpecific = arg[Long](default = 123L)
+    var runSpecific = opt[Long](default = 123L)
   }
 
   object Show extends Command(name = "cho",
