@@ -47,9 +47,9 @@ object Cli {
     }
 
     if( isOption ) {
-      q"""new CliOption.Builder(this, ${term.name.toString.trim})"""
+      q"""new _root_.org.backuity.cli.CliOption.Builder(this, ${term.name.toString.trim})"""
     } else {
-      q"""new CliArgument.Builder(this, ${term.name.toString.trim})"""
+      q"""new _root_.org.backuity.cli.CliArgument.Builder(this, ${term.name.toString.trim})"""
     }
   }
 
