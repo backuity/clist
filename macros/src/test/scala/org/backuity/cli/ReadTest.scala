@@ -1,6 +1,5 @@
 package org.backuity.cli
 
-import org.backuity.cli.Season.Season
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 

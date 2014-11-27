@@ -3,30 +3,94 @@ package org.backuity.cli
 sealed abstract class CliAttribute[T] {
   val tpe: Class[T]
   val name: String
+
+  /**
+   * Name of the command attribute that will receive the value.
+   */
+  val commandAttributeName: String
+
   val description: Option[String]
-  val default: Option[T]
   val reader: Read[T]
 }
 
-case class CliArgument[T](tpe: Class[T],
-                          name: String,
-                          description: Option[String],
-                          required: Boolean,
-                          default: Option[T])(val reader: Read[T]) extends CliAttribute[T] {
+/**
+ * An argument is a value directly passed to a command. It may be optional.
+ */
+abstract class CliArgument[T] extends CliAttribute[T]
+
+case class CliOptionalArgument[T](tpe: Class[T],
+                                  commandAttributeName: String,
+                                  name: String,
+                                  description: Option[String],
+                                  default: T)
+                                 (val reader: Read[T]) extends CliArgument[T] {
 }
 
+case class CliMandatoryArgument[T](tpe: Class[T],
+                                  commandAttributeName: String,
+                                  name: String,
+                                  description: Option[String])
+                                  (val reader: Read[T]) extends CliArgument[T] {
+}
+
+/**
+ * As opposed to an argument an option is always optional.
+ */
 case class CliOption[T](tpe: Class[T],
-                     longName: Option[String],
-                     description: Option[String],
-                     abbrev: Option[String],
-                     default: Option[T])(val reader: Read[T]) extends CliAttribute[T] {
+                        commandAttributeName: String,
+                        longName: Option[String],
+                        description: Option[String],
+                        abbrev: Option[String],
+                        default: T)(val reader: Read[T]) extends CliAttribute[T] {
 
   val name = longName.getOrElse(abbrev.get)
 }
 
+object CliAttribute {
+  
+  class Builder[T: Read : Manifest](varName: String) {
+
+    val clazz: Class[_] = manifest[T].runtimeClass
+
+    def fail(msg: String) {
+      throw new IllegalArgumentException(s"Incorrect argument $varName: $msg")
+    }
+
+    def validateDefault(default: T) : T = {
+
+      // TODO check those at compile time (when SI-5920 gets fixed)
+
+      if( default == null
+          && clazz != classOf[Option[_]]
+          && clazz != classOf[Boolean] ) {
+              
+        fail("an optional argument that has neither type Option nor Boolean must have a default value")
+      }
+
+      // TODO we really want to forbid setting the default value but we have no way to check that..
+      //      ..it seems that `default: T = null.asInstanceOf[T]` does not get a null for primitive types
+      //      but rather a default value.
+      if( clazz == classOf[Boolean] &&
+          default.asInstanceOf[Boolean] == true ) { // use `== true` to make that statement more readable
+        fail(s"a boolean argument cannot have a default value set to true")
+      }
+
+      (if( default != null ) {
+        default
+      } else if( clazz == classOf[Option[_]] ) {
+        None
+      } else if( clazz == classOf[Boolean] ) {
+        false
+      }).asInstanceOf[T]
+    }
+  }
+  
+
+}
+
 object CliOption {
   // this class cannot be within Cli due to some macros restrictions
-  class Builder[T : Read : Manifest](command: Command, varName: String) {
+  class Builder[T : Read : Manifest](command: Command, varName: String) extends CliAttribute.Builder[T](varName) {
 
     /**
      * - unless it is a boolean, an optional argument must have a default value
@@ -39,31 +103,21 @@ object CliOption {
                       abbrevOnly: String = null,
                       default: T = null.asInstanceOf[T]) : T = {
 
-      def fail(msg: String) {
-        throw new IllegalArgumentException(s"Incorrect argument $varName: $msg")
-      }
-
       // TODO check those at compile time (when SI-5920 gets fixed)
 
       if( abbrevOnly != null && abbrev != null ) {
         fail("cannot define both abbrev and abbrevOnly")
       }
-      if( default == null && manifest[T].runtimeClass != classOf[Boolean] ) {
-        fail("a non-boolean option must have a default value")
-      }
-      // TODO we really want to forbid setting the default value but we have no way to check that..
-      //      ..it seems that `default: T = null.asInstanceOf[T]` does not get a null for primitive types
-      //      but rather a default value.
-      if( manifest[T].runtimeClass == classOf[Boolean] && default.asInstanceOf[Boolean]) {
-        fail(s"a boolean argument cannot have a default value set to true")
-      }
+
+      val nonNullDefault = validateDefault(default)
 
       command.addOption(CliOption(
-        manifest[T].runtimeClass.asInstanceOf[Class[T]],
-        Option(name).orElse(Some(varName.trim)),
-        Option(description),
-        Option(abbrevOnly).orElse(Option(abbrev)),
-        Option(default))(implicitly[Read[T]]))
+        tpe         = manifest[T].runtimeClass.asInstanceOf[Class[T]],
+        commandAttributeName      = varName,
+        longName    = Option(name).orElse(Some(varName.trim)),
+        description = Option(description),
+        abbrev      = Option(abbrevOnly).orElse(Option(abbrev)),
+        default     = nonNullDefault)(implicitly[Read[T]]))
 
       default
     }
@@ -71,7 +125,7 @@ object CliOption {
 }
 
 object CliArgument {
-  class Builder[T : Read : Manifest](command: Command, varName: String) {
+  class Builder[T : Read : Manifest](command: Command, varName: String) extends CliAttribute.Builder[T](varName) {
 
     /**
      * - unless it is a boolean, an optional argument must have a default value
@@ -83,30 +137,30 @@ object CliArgument {
                       required: Boolean = true,
                       default: T = null.asInstanceOf[T]) : T = {
 
-      def fail(msg: String) {
-        throw new IllegalArgumentException(s"Incorrect argument $varName: $msg")
-      }
-
       // TODO check those at compile time (when SI-5920 gets fixed)
 
-      if( default == null && !required
-          && manifest[T].runtimeClass != classOf[Option[_]]
-          && manifest[T].runtimeClass != classOf[Boolean] ) {
-        fail("a non-boolean optional argument must have a default value")
-      }
-      // TODO we really want to forbid setting the default value but we have no way to check that..
-      //      ..it seems that `default: T = null.asInstanceOf[T]` does not get a null for primitive types
-      //      but rather a default value.
-      if( manifest[T].runtimeClass == classOf[Boolean] && default.asInstanceOf[Boolean]) {
-        fail(s"a boolean argument cannot have a default value set to true")
-      }
+      if( required ) {
 
-      command.addArgument(CliArgument(
-        manifest[T].runtimeClass.asInstanceOf[Class[T]],
-        Option(name).getOrElse(varName.trim),
-        Option(description),
-        required,
-        Option(default))(implicitly[Read[T]]))
+        if( default != null && clazz != classOf[Boolean] ) {
+          fail("a required argument will ignore its default value")
+        }
+
+        command.addArgument(CliMandatoryArgument(
+          tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
+          commandAttributeName = varName,
+          name                 = Option(name).getOrElse(varName.trim),
+          description          = Option(description))(implicitly[Read[T]]))
+      } else {
+
+        val nonNullDefault = validateDefault(default)
+
+        command.addArgument(CliOptionalArgument(
+          tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
+          commandAttributeName = varName,
+          name                 = Option(name).getOrElse(varName.trim),
+          description          = Option(description),
+          default              = nonNullDefault)(implicitly[Read[T]]))
+      }
 
       default
     }

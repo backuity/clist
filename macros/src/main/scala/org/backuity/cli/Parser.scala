@@ -4,7 +4,7 @@ class Parser {
   private var version : Option[String] = None
   private var help : Option[String] = Some("help")
   private var usage : Usage = Usage.Default
-  private var args: Array[String] = null
+  private var args: List[String] = Nil
 
   def version(version: String) : Parser = {
     this.version = Some(version)
@@ -22,7 +22,7 @@ class Parser {
   }
 
   def parse(args: Array[String]) : Parser = {
-    this.args = args
+    this.args = args.toList
     this
   }
 
@@ -35,7 +35,7 @@ class Parser {
   }
 
   def withCommand[T](command: Command)(onSuccess: => T): T = {
-
+    command.read(args)
     onSuccess
   }
 }

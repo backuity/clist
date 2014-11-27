@@ -1,11 +1,8 @@
 package org.backuity.cli
 
 trait Read[A] { self =>
-  def arity: Int
-  def tokensToRead: Int = if (arity == 0) 0 else 1
   def reads: String => A
   def map[B](f: A => B): Read[B] = new Read[B] {
-    val arity = self.arity
     val reads = self.reads andThen f
   }
 }
@@ -20,7 +17,6 @@ object Read {
   import java.text.SimpleDateFormat
   import java.util.{Calendar, GregorianCalendar, Locale}
   def reads[A](f: String => A): Read[A] = new Read[A] {
-    val arity = 1
     val reads = f
   }
   implicit val intRead: Read[Int] = reads { _.toInt }
@@ -40,6 +36,10 @@ object Read {
   implicit val longRead: Read[Long] = reads { _.toLong }
   implicit val bigIntRead: Read[BigInt] = reads { BigInt(_) }
   implicit val bigDecimalRead: Read[BigDecimal] = reads { BigDecimal(_) }
+
+  implicit def optionRead[T : Manifest : Read] : Read[Option[T]] = reads { s =>
+    Some(implicitly[Read[T]].reads(s))
+  }
 
   implicit def javaEnumRead[T <: Enum[T] : Manifest]: Read[T] = reads { s =>
     Enum.valueOf(manifest[T].runtimeClass.asInstanceOf[Class[T]], s.toUpperCase)
@@ -61,7 +61,6 @@ object Read {
   implicit val uriRead: Read[URI] = reads { new URI(_) }
 
   implicit def tupleRead[A1: Read, A2: Read]: Read[(A1, A2)] = new Read[(A1, A2)] {
-    val arity = 2
     val reads = { (s: String) =>
       splitKeyValue(s) match {
         case (k, v) => implicitly[Read[A1]].reads(k) -> implicitly[Read[A2]].reads(v)
@@ -76,7 +75,6 @@ object Read {
     }
 
   implicit val unitRead: Read[Unit] = new Read[Unit] {
-    val arity = 0
     val reads = { (s: String) => () }
   }
 }
