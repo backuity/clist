@@ -30,12 +30,25 @@ class Parser {
 
   def withCommands[T <: Command : Manifest](withCommands : T*) : T = {
     val commands = Commands(withCommands : _*)
-    // TODO
-    withCommands(0)
+    val (globalOptions,commandOptions) = args.splitAt(args.indexWhere( ! _.startsWith("-")))
+    commandOptions match {
+      case Nil => throw ParsingException("No command found")
+      case cmdName :: params =>
+        commands.findByName(cmdName) match {
+          case None => throw ParsingException("Command " + cmdName + " does not exist")
+          case Some(cmd) =>
+            cmd.read(params ::: globalOptions)
+            cmd.asInstanceOf[T]
+        }
+    }
   }
 
-  def withCommand[T](command: Command)(onSuccess: => T): T = {
+  def withStaticCommand(command: Command): Unit = {
     command.read(args)
-    onSuccess
+  }
+
+  def withCommand[C <: Command, R](command: C)(onSuccess: C => R): R = {
+    command.read(args)
+    onSuccess(command)
   }
 }

@@ -1,7 +1,12 @@
 package org.backuity.cli
 
 case class Commands( options : Set[CliOption[_]],
-                     commands : Set[Command])
+                     commands : Set[Command]) {
+
+  def findByName(name: String) : Option[Command] = {
+    commands.find( _.label == name)
+  }
+}
 
 object Commands {
   /** Build a Commands by infering its global arguments */

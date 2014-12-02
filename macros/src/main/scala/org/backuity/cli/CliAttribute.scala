@@ -96,6 +96,8 @@ object CliOption {
      * - unless it is a boolean, an optional argument must have a default value
      * - a boolean cannot have a default value (we want to avoid a boolean being true
      *   by default.. it would always be true)
+     *
+     * @param abbrevOnly when set, disable the long form (`--name`)
      */
     def apply[U <: T](name: String = null,
                       description: String = null,
@@ -105,16 +107,24 @@ object CliOption {
 
       // TODO check those at compile time (when SI-5920 gets fixed)
 
+      if( clazz != classOf[Boolean] && (abbrev != null || abbrevOnly != null) ) {
+        fail("only boolean options can have an abbreviation")
+      }
       if( abbrevOnly != null && abbrev != null ) {
         fail("cannot define both abbrev and abbrevOnly")
       }
 
       val nonNullDefault = validateDefault(default)
+      val longName = if( abbrevOnly != null ) {
+        None
+      } else {
+        Option(name).orElse(Some(varName.trim))
+      }
 
       command.addOption(CliOption(
         tpe         = manifest[T].runtimeClass.asInstanceOf[Class[T]],
-        commandAttributeName      = varName,
-        longName    = Option(name).orElse(Some(varName.trim)),
+        commandAttributeName = varName,
+        longName    = longName,
         description = Option(description),
         abbrev      = Option(abbrevOnly).orElse(Option(abbrev)),
         default     = nonNullDefault)(implicitly[Read[T]]))

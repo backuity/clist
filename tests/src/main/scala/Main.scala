@@ -34,7 +34,7 @@ object Main {
 
     println(Usage.Default.show(Commands(Run,Show,Test)))
     
-    Cli.parse(args).version("1.2").withCommand(Run) {
+    Cli.parse(args).version("1.2").withCommand(Run) { _ =>
       println("Parsed with run : optB=" + Run.optB)
     }
 

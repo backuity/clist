@@ -1,6 +1,5 @@
 package org.backuity.cli
 
-import sun.security.pkcs.ParsingException
 
 /** @param name if not specified the lower-cased class name will be used */
 abstract class Command(name: String = null, val description: String = "") {
@@ -29,9 +28,9 @@ abstract class Command(name: String = null, val description: String = "") {
         popArg() match {
           case None =>
             cmdArg match {
-              case _ : CliMandatoryArgument =>
+              case _ : CliMandatoryArgument[_] =>
                 throw ParsingException("No argument provided for " + cmdArg.name)
-              case optArg : CliOptionalArgument =>
+              case optArg : CliOptionalArgument[_] =>
                 setVar(cmdArg, optArg.default)
             }
 
@@ -44,25 +43,44 @@ abstract class Command(name: String = null, val description: String = "") {
     def parseOptions(): Unit = {
       var processedOptions = Set.empty[CliOption[_]]
 
+      def remainingOptions = options -- processedOptions
+
       for( arg <- remainingArgs ) {
-        findOptionForArg(arg) match {
+        findOptionForArg(remainingOptions, arg) match {
           case None => throw ParsingException("No option found for " + arg)
           case Some((option,value)) =>
             processedOptions += option
-            setVar(option, value)
+            readAndSetVar(option, value)
         }
+      }
+
+      for( option <- remainingOptions ) {
+        setVar(option, option.default)
       }
     }
   }
 
-  private def findOptionForArg(arg: String) : Option[(CliOption[_], String)] = {
+  /**
+   * @return the matching option along with its value
+   */
+  private def findOptionForArg(options : Set[CliOption[_]], arg: String) : Option[(CliOption[_], String)] = {
     for( option <- options ) {
-      option.abbrev match {
-        case Some(abbrev) => if( arg == ("-" + abbrev)) {
-          
+      option.abbrev.map { abbrev =>
+        if( arg == ("-" + abbrev) ) {
+          return Some(option, "")
+        }
+      }
+      option.longName.map { longName =>
+        if( arg == ("--" + longName) ) {
+          return Some(option, "")
+        }
+        val key = "--" + longName + "="
+        if( arg.startsWith(key) ) {
+          return Some(option, arg.substring(key.length))
         }
       }
     }
+    None
   }
 
   private[this] def readAndSetVar(arg: CliAttribute[_], strValue: String): Unit = {
