@@ -30,12 +30,14 @@ class Parser {
 
   def withCommands[T <: Command : Manifest](withCommands : T*) : T = {
     val commands = Commands(withCommands : _*)
-    val (globalOptions,commandOptions) = args.splitAt(args.indexWhere( ! _.startsWith("-")))
-    commandOptions match {
-      case Nil => throw ParsingException("No command found")
-      case cmdName :: params =>
+    args.indexWhere( ! _.startsWith("-")) match {
+      case -1 => throw ParsingException("No command found, expected one of " +
+          commands.commands.map( _.label ).toList.sorted.mkString(", "))
+
+      case idx =>
+        val (globalOptions, cmdName :: params) = args.splitAt(idx)
         commands.findByName(cmdName) match {
-          case None => throw ParsingException("Command " + cmdName + " does not exist")
+          case None => throw ParsingException(s"Unknown command '$cmdName'")
           case Some(cmd) =>
             cmd.read(params ::: globalOptions)
             cmd.asInstanceOf[T]

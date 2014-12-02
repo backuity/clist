@@ -1,5 +1,5 @@
 import org.backuity.cli.Cli._
-import org.backuity.cli.{Cli, Command}
+import org.backuity.cli.{ParsingException, Cli, Command}
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
@@ -18,6 +18,24 @@ class MultipleCommandParsingTest extends JunitMatchers {
     Run.optB must beTrue
   }
 
+  @Test
+  def noCommandSpecified(): Unit = {
+    Cli.parse(Array("--1")).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+      "No command found, expected one of cho, dry, run")
+    Cli.parse(Array()).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+      "No command found, expected one of cho, dry, run")
+  }
+
+  @Test
+  def noOptionCommand(): Unit = {
+    Cli.parse(Array("cho")).withCommands(Run,Show,Dry) must_== Show
+  }
+
+  @Test
+  def wrongCommand(): Unit = {
+    Cli.parse(Array("baaad")).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+      "Unknown command 'baaad'")
+  }
 }
 
 
@@ -48,6 +66,6 @@ object MultipleCommandParsingTest {
     description = "show the shit!") with GlobalOptions {
   }
 
-  object Test extends Command with SomeCategoryOptions
+  object Dry extends Command with SomeCategoryOptions
 
 }
