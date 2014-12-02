@@ -6,8 +6,7 @@ object Main {
   trait GlobalOptions { this : Command =>
     var opt1 = opt[Boolean](name = "1",
                            description = "This is a wonderful command")
-    var opt2 = opt[String](abbrev = "2",
-                           description = "Man you should try this one",
+    var opt2 = opt[String](description = "Man you should try this one",
                            default = "haha")
 
     var season = opt[Season](default = Season.WINTER)
@@ -34,14 +33,16 @@ object Main {
 
     println(Usage.Default.show(Commands(Run,Show,Test)))
     
-    Cli.parse(args).version("1.2").withCommand(Run) { _ =>
-      println("Parsed with run : optB=" + Run.optB)
-    }
+//    Cli.parse(args).version("1.2").withCommand(Run) { _ =>
+//      println("Parsed with run : optB=" + Run.optB)
+//    }
 
-    Cli.parse(args).version("1.2.3").withCommands(Run, Show) match {
+    Cli.parse(args).version("1.2.3").withCommands(Run, Show, Test) match {
       case Run =>
-        println("specific : " + Run.runSpecific)
-        println("opt1 : " + Run.opt2)
+        println("Executed Run command:")
+        println("\t- target : " + Run.target)
+        println("\t- specific : " + Run.runSpecific)
+        println("\t- opt1 : " + Run.opt2)
 
       case Show => println("show")
     }
