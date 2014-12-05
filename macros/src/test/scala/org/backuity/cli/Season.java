@@ -1,5 +1,5 @@
 package org.backuity.cli;
 
-public enum JavaSeason {
+public enum Season {
   WINTER, SPRING, SUMMER, AUTUMN
 }

@@ -17,7 +17,7 @@ object Main {
     var optB = opt[Boolean](description = "some flag")
   }
 
-  object Run extends Command with SomeCategoryOptions {
+  object Run extends Command(description = "run run baby run") with SomeCategoryOptions {
     var target = arg[String]()
 
     var runSpecific = opt[Long](default = 123L)

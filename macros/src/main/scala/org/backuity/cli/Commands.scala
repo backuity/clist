@@ -3,6 +3,8 @@ package org.backuity.cli
 case class Commands( options : Set[CliOption[_]],
                      commands : Set[Command]) {
 
+  val commandsSortedByLabel = commands.toList.sortBy(_.label)
+
   def findByName(name: String) : Option[Command] = {
     commands.find( _.label == name)
   }

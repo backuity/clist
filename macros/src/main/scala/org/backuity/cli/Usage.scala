@@ -42,8 +42,13 @@ object Usage {
 
       def addLine(str: String = ""): Unit = { add(str + "\n") }
       def add(str: String): Unit = {
-        val pad = if( beginning ) indentString * indentLevel else ""
-        usage.append(pad + str)
+        if( str.trim.isEmpty ) {
+          // do not pad for nothing
+          usage.append(str)
+        } else {
+          val pad = if (beginning) indentString * indentLevel else ""
+          usage.append(pad + str)
+        }
         if( str.endsWith("\n") ) {
           beginning = true
         } else {
@@ -81,7 +86,7 @@ object Usage {
       def addOptions(opts: Set[CliOption[_]]): Unit = {
         val labelMaxSize = opts.map(optLabel).map(_.length).max
 
-        for( opt <- opts ) {
+        for( opt <- opts.toList.sortBy(_.name) ) {
           addLine(optText(labelMaxSize, opt))
         }
       }
@@ -99,7 +104,7 @@ object Usage {
       addLine()
       addLine(ansi"%underline{Commands:}")
       indent {
-        for (command <- commands.commands) {
+        for (command <- commands.commandsSortedByLabel) {
           addLine()
           add(ansi"%bold{${command.label}}")
           val commandSpecificOpts = command.options -- commands.options

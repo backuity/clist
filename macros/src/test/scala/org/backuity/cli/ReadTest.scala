@@ -7,6 +7,6 @@ class ReadTest extends JunitMatchers {
 
     @Test
     def javaEnum(): Unit = {
-        implicitly[Read[JavaSeason]].reads("winter") must_== JavaSeason.WINTER
+        implicitly[Read[Season]].reads("winter") must_== Season.WINTER
     }
 }

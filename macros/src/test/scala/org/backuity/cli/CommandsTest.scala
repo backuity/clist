@@ -28,7 +28,7 @@ object CommandsTest {
     var opt1 = opt[Boolean]()
     var opt2 = opt[String](default = "pouette")
 
-    var season = opt[JavaSeason](default = JavaSeason.WINTER)
+    var season = opt[Season](default = Season.WINTER)
   }
 
   trait SomeCategoryOptions extends GlobalOptions { this : Command =>
