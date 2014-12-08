@@ -84,8 +84,13 @@ abstract class Command(name: String = null, val description: String = "") {
   }
 
   private[this] def readAndSetVar(arg: CliAttribute[_], strValue: String): Unit = {
-    val value = arg.reader.reads(strValue)
-    setVar(arg, value)
+    try {
+      val value = arg.reader.reads(strValue)
+      setVar(arg, value)
+    } catch {
+      case ReadException(value, expected) =>
+        throw new ParsingException(s"Incorrect parameter ${arg.name} '$value', expected $expected")
+    }
   }
 
   private[this] def setVar(arg: CliAttribute[_], value: Any): Unit = {

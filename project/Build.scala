@@ -40,7 +40,7 @@ object CliBuild extends Build {
           "org.backuity" %% "ansi-interpolator" % "1.1" % "provided",
 
           // Tests
-          "org.backuity" %% "matchete" % "1.10" % "test",
+          "org.backuity" %% "matchete" % "1.11" % "test",
           "com.novocode" % "junit-interface" % "0.11" % "test",
           "org.mockito" % "mockito-core" % "1.10.8" % "test")
     )
@@ -51,7 +51,7 @@ object CliBuild extends Build {
     settings = buildSettings ++ Seq(
       libraryDependencies ++= Seq(
         // Tests
-        "org.backuity" %% "matchete" % "1.10" % "test",
+        "org.backuity" %% "matchete" % "1.11" % "test",
         "com.novocode" % "junit-interface" % "0.11" % "test"),
 
       publishArtifact := false)

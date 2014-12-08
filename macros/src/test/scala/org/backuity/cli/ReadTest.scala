@@ -9,4 +9,13 @@ class ReadTest extends JunitMatchers {
     def javaEnum(): Unit = {
         implicitly[Read[Season]].reads("winter") must_== Season.WINTER
     }
+
+    @Test
+    def incorrectJavaEnum(): Unit = {
+        implicitly[Read[Season]].reads("summr") must throwA[ReadException].`with`("expectations") {
+            case ReadException(value,expected) =>
+                expected must_== "one of autumn,spring,summer,winter"
+                value must_== "summr"
+        }
+    }
 }

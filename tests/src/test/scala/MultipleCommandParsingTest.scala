@@ -27,6 +27,12 @@ class MultipleCommandParsingTest extends JunitMatchers {
   }
 
   @Test
+  def incorrectArgument_Enum(): Unit = {
+    Cli.parse(Array("--season=summr", "cho")).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+      "Incorrect parameter season 'summr', expected one of autumn,spring,summer,winter")
+  }
+
+  @Test
   def noOptionCommand(): Unit = {
     Cli.parse(Array("cho")).withCommands(Run,Show,Dry) must_== Show
   }

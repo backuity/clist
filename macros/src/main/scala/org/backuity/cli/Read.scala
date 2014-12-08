@@ -7,6 +7,8 @@ trait Read[A] { self =>
   }
 }
 
+case class ReadException(value: String, expected: String) extends RuntimeException
+
 /**
  * Note that we do not support scala Enumeration as this would require having a runtime dependency
  * on the reflection API. On the other hand Java enums are supported.
@@ -38,7 +40,12 @@ object Read {
   }
 
   implicit def javaEnumRead[T <: Enum[T] : Manifest]: Read[T] = reads { s =>
-    Enum.valueOf(manifest[T].runtimeClass.asInstanceOf[Class[T]], s.toUpperCase)
+    val values = manifest[T].runtimeClass.getEnumConstants.map(_.toString)
+    if( !values.contains(s.toUpperCase)) {
+      throw ReadException(value = s, expected = "one of " + values.sorted.mkString(",").toLowerCase)
+    } else {
+      Enum.valueOf(manifest[T].runtimeClass.asInstanceOf[Class[T]], s.toUpperCase)
+    }
   }
 
   implicit val yyyymmdddRead: Read[Calendar] = calendarRead("yyyy-MM-dd")
