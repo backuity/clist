@@ -53,7 +53,7 @@ object Cli {
     }
   }
 
-  def parse(args: Array[String]) : Parser = {
+  def parse(args: Array[String])(implicit console: Console, exit: Exit) : Parser = {
     new Parser().parse(args)
   }
 }

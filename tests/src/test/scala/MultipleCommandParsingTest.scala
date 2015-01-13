@@ -1,5 +1,5 @@
 import org.backuity.cli.Cli._
-import org.backuity.cli.{ParsingException, Cli, Command}
+import org.backuity.cli._
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
@@ -9,7 +9,7 @@ class MultipleCommandParsingTest extends JunitMatchers {
 
   @Test
   def parseMultipleCommands(): Unit = {
-    Cli.parse(Array("--1", "--season=summer", "run","stuff", "--runSpecific=456", "-B")).withCommands(Run, Show) must_== Run
+    Cli.parse(Array("--1", "--season=summer", "run","stuff", "--runSpecific=456", "-B")).withCommands(Run, Show) must_== Some(Run)
     Run.opt1 must beTrue
     Run.opt2 must_== "haha"
     Run.target must_== "stuff"
@@ -34,13 +34,43 @@ class MultipleCommandParsingTest extends JunitMatchers {
 
   @Test
   def noOptionCommand(): Unit = {
-    Cli.parse(Array("cho")).withCommands(Run,Show,Dry) must_== Show
+    Cli.parse(Array("cho")).withCommands(Run,Show,Dry) must_== Some(Show)
   }
 
   @Test
   def wrongCommand(): Unit = {
     Cli.parse(Array("baaad")).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
       "Unknown command 'baaad'")
+  }
+
+  @Test
+  def version(): Unit = {
+    implicit val console = new Console.InMemory
+    Cli.parse(Array("version")).version("1.2.3").withCommands(Run,Show,Dry) must_== None
+    console.toString must_== ("1.2.3" + System.lineSeparator())
+  }
+
+  @Test
+  def exitOnError(): Unit = {
+    implicit val exit = Exit.withException
+    Cli.parse(Array("incorrect")).exitCode(12).withCommands(Run,Show,Dry) must throwAn[ExitException].`with`("error code 12") {
+      case ExitException(12) =>
+    }
+  }
+
+  @Test
+  def showUsageOnError(): Unit = {
+    implicit val exit = Exit.withException
+    implicit val console = new Console.InMemory
+    Cli.parse(Array("incorrect")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException]
+    console.toString must_== (Usage.Default.show(Commands(Run,Show,Dry)) + System.lineSeparator())
+  }
+
+  @Test
+  def overrideVersionCommand(): Unit = {
+    implicit val console = new Console.InMemory
+    Cli.parse(Array("--vers")).version("1.0.x", command = "--vers").withCommands(Run,Show,Dry) must_== None
+    console.toString must_== ("1.0.x" + System.lineSeparator())
   }
 }
 

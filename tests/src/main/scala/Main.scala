@@ -32,13 +32,13 @@ object Main {
   def main(args: Array[String]) {
 
     Cli.parse(args).version("1.2.3").withCommands(Run, Show, Test) match {
-      case Run =>
+      case Some(Run) =>
         println("Executed Run command:")
         println("\t- target : " + Run.target)
         println("\t- specific : " + Run.runSpecific)
         println("\t- opt1 : " + Run.opt2)
 
-      case Show =>
+      case Some(Show) =>
         println("show")
         println("\t - season : " + Show.season)
     }
