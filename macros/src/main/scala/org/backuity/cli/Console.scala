@@ -9,11 +9,11 @@ trait Console {
 
 object Console {
   implicit val out = new Console {
-    def println(message: Any): Unit = {
+    def print(message: Any): Unit = {
       scala.Console.print(message)
     }
 
-    def print(message: Any): Unit = {
+    def println(message: Any): Unit = {
       scala.Console.println(message)
     }
   }
