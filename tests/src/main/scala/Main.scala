@@ -3,6 +3,9 @@ import org.backuity.cli.Cli.{opt,arg}
 
 object Main {
 
+  // this lets you be exhaustive when matching on the command return
+  sealed trait MyCommand { this : Command => }
+
   trait GlobalOptions { this : Command =>
     var opt1 = opt[Boolean](name = "1",
                            description = "This is a wonderful command")
@@ -17,17 +20,17 @@ object Main {
     var optB = opt[Boolean](description = "some flag")
   }
 
-  object Run extends Command(description = "run run baby run") with SomeCategoryOptions {
+  object Run extends Command(description = "run run baby run") with SomeCategoryOptions with MyCommand {
     var target = arg[String]()
 
     var runSpecific = opt[Long](default = 123L)
   }
 
   object Show extends Command(name = "cho",
-                              description = "show the shit!") with GlobalOptions {
+                              description = "show the shit!") with GlobalOptions with MyCommand {
   }
 
-  object Test extends Command with SomeCategoryOptions
+  object Test extends Command with SomeCategoryOptions with MyCommand
 
   def main(args: Array[String]) {
 
@@ -41,6 +44,12 @@ object Main {
       case Some(Show) =>
         println("show")
         println("\t - season : " + Show.season)
+
+      case Some(Test) =>
+        println("test")
+
+      case None =>
+        println("nothing done")
     }
   }
 }
