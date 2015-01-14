@@ -3,6 +3,8 @@ package org.backuity.cli
 
 /** @param name if not specified the lower-cased class name will be used */
 abstract class Command(name: String = null, val description: String = "") {
+
+  /** @throws ParsingException if arguments or options cannot be parsed */
   def read(args: List[String]) = {
 
     var remainingArgs = args

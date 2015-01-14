@@ -82,6 +82,21 @@ object Usage {
         })
       }
 
+      def addCommandSynopsis(command: Command,
+                             commandSpecificOpts: Set[CliOption[_]],
+                             optionLabel : String = "options"): Unit = {
+        add(ansi"%bold{${command.label}}")
+        val description = if( command.description != "" ) " : " + command.description else ""
+
+        if( command.arguments.nonEmpty ) {
+          add(" " + command.arguments.map(arg => s"<${arg.name}>").mkString(" "))
+        }
+        if( commandSpecificOpts.nonEmpty ) {
+          add(ansi" %yellow{[$optionLabel]}")
+        }
+        addLine(description)
+      }
+
       /** @param opts non empty */
       def addOptions(opts: Set[CliOption[_]]): Unit = {
         val labelMaxSize = opts.map(optLabel).map(_.length).max
@@ -93,41 +108,41 @@ object Usage {
 
       addLine(ansi"%underline{Usage}")
       addLine()
-      addLine(ansi" %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}")
-      addLine()
-      addLine(ansi"%underline{Options:}")
-      addLine()
-      indent {
-        addOptions(commands.options)
-      }
+      if( commands.size == 1 ) {
+        val command = commands.commands.head
+        add(" "); addCommandSynopsis(command, command.options)
+        addLine()
+        addLine(ansi"%underline{Options:}")
+        addLine()
+        indent {
+          addOptions(command.options)
+        }
+      } else {
+        addLine(ansi" %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}")
+        addLine()
+        addLine(ansi"%underline{Options:}")
+        addLine()
+        indent {
+          addOptions(commands.options)
+        }
+        addLine()
+        addLine(ansi"%underline{Commands:}")
+        indent {
+          for (command <- commands.commandsSortedByLabel) {
+            addLine()
+            val commandSpecificOpts = command.options -- commands.options
+            addCommandSynopsis(command, commandSpecificOpts, optionLabel = "command options")
 
-      addLine()
-      addLine(ansi"%underline{Commands:}")
-      indent {
-        for (command <- commands.commandsSortedByLabel) {
-          addLine()
-          add(ansi"%bold{${command.label}}")
-          val commandSpecificOpts = command.options -- commands.options
-          val description = if( command.description != "" ) " : " + command.description else ""
-
-          if( command.arguments.nonEmpty ) {
-            add(" " + command.arguments.map(arg => s"<${arg.name}>").mkString(" "))
-          }
-          if( commandSpecificOpts.nonEmpty ) {
-            add(" [command options]")
-          }
-          addLine(description)
-
-          // body
-          // TODO args
-          if( commandSpecificOpts.nonEmpty ) {
-            indent {
-              addOptions(commandSpecificOpts)
+            // body
+            // TODO args
+            if( commandSpecificOpts.nonEmpty ) {
+              indent {
+                addOptions(commandSpecificOpts)
+              }
             }
           }
         }
       }
-
       usage.toString
     }
   }

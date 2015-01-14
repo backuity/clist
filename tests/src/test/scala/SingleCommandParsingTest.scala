@@ -4,7 +4,7 @@ import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
 
-class SingleCommandParsingTest extends JunitMatchers {
+class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   import SingleCommandParsingTest._
 

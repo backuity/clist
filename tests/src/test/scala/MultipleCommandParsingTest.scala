@@ -1,11 +1,15 @@
+import java.lang.System.lineSeparator
+
 import org.backuity.cli.Cli._
 import org.backuity.cli._
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
-class MultipleCommandParsingTest extends JunitMatchers {
+class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   import MultipleCommandParsingTest._
+
+  implicit val console = new Console.InMemory
 
   @Test
   def parseMultipleCommands(): Unit = {
@@ -20,9 +24,9 @@ class MultipleCommandParsingTest extends JunitMatchers {
 
   @Test
   def noCommandSpecified(): Unit = {
-    Cli.parse(Array("--1")).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+    Cli.parse(Array("--1")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
       "No command found, expected one of cho, dry, run")
-    Cli.parse(Array()).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+    Cli.parse(Array()).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
       "No command found, expected one of cho, dry, run")
   }
 
@@ -38,39 +42,38 @@ class MultipleCommandParsingTest extends JunitMatchers {
   }
 
   @Test
-  def wrongCommand(): Unit = {
-    Cli.parse(Array("baaad")).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+  def wrongCommandShouldPrintErrorAndExit(): Unit = {
+    Cli.parse(Array("baaad")).noUsageOnError().exitCode(123).withCommands(Run,Show,Dry) must exitWithCode(123)
+    console.content must_== ("Unknown command 'baaad'" + lineSeparator())
+  }
+
+  @Test
+  def wrongCommandShouldThrowAParsingException(): Unit = {
+    Cli.parse(Array("baaad")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
       "Unknown command 'baaad'")
   }
 
   @Test
   def version(): Unit = {
-    implicit val console = new Console.InMemory
     Cli.parse(Array("version")).version("1.2.3").withCommands(Run,Show,Dry) must_== None
-    console.toString must_== ("1.2.3" + System.lineSeparator())
+    console.content must_== ("1.2.3" + lineSeparator())
   }
 
   @Test
   def exitOnError(): Unit = {
-    implicit val exit = Exit.withException
-    Cli.parse(Array("incorrect")).exitCode(12).withCommands(Run,Show,Dry) must throwAn[ExitException].`with`("error code 12") {
-      case ExitException(12) =>
-    }
+    Cli.parse(Array("incorrect")).exitCode(12).withCommands(Run,Show,Dry) must exitWithCode(12)
   }
 
   @Test
   def showUsageOnError(): Unit = {
-    implicit val exit = Exit.withException
-    implicit val console = new Console.InMemory
     Cli.parse(Array("incorrect")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException]
-    console.toString must_== (Usage.Default.show(Commands(Run,Show,Dry)) + System.lineSeparator())
+    console.content must_== (Usage.Default.show(Commands(Run,Show,Dry)) + lineSeparator())
   }
 
   @Test
   def overrideVersionCommand(): Unit = {
-    implicit val console = new Console.InMemory
     Cli.parse(Array("--vers")).version("1.0.x", command = "--vers").withCommands(Run,Show,Dry) must_== None
-    console.toString must_== ("1.0.x" + System.lineSeparator())
+    console.content must_== ("1.0.x" + lineSeparator())
   }
 }
 

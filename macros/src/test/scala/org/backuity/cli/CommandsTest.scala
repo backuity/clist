@@ -17,6 +17,21 @@ class CommandsTest extends JunitMatchers {
       anOption("season"))
   }
 
+  @Test
+  def singleCommandCommands(): Unit = {
+    Commands(Run).options must contain(
+      anOption("runSpecific"),
+      anOption("opt1"),
+      anOption("opt2"),
+      anOption("season"))
+  }
+
+  @Test
+  def emptyCommand(): Unit = {
+    Commands() must throwAn[IllegalArgumentException].withMessage(
+      "Cannot constructor an empty Commands")
+  }
+
   def anOption(name : String) = an[CliOption[_]](s"argument named $name") {
     case opt : CliOption[_] => opt.name must_== name
   }

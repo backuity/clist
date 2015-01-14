@@ -26,14 +26,32 @@ class UsageTest extends JunitMatchers {
               |
               |   %bold{cho} : show the shit!
               |
-              |   %bold{dry} [command options]
+              |   %bold{dry} %yellow{[command options]}
               |      %yellow{--A=NUM}
               |      %yellow{--optB}  : some flag
               |
-              |   %bold{run} <target> [command options] : run run baby run
+              |   %bold{run} <target> %yellow{[command options]} : run run baby run
               |      %yellow{--A=NUM}
               |      %yellow{--optB}            : some flag
               |      %yellow{--runSpecific=NUM}
+              |""".stripMargin
+    }
+
+    @Test
+    def singleCommandUsage(): Unit = {
+      Usage.Default.show(Commands(Run)) must_==
+        ansi"""%underline{Usage}
+              |
+              | %bold{run} <target> %yellow{[options]} : run run baby run
+              |
+              |%underline{Options:}
+              |
+              |   %yellow{--1}                                  : This is a wonderful command
+              |   %yellow{--A=NUM}
+              |   %yellow{--opt2=STRING}                        : Man you should try this one
+              |   %yellow{--optB}                               : some flag
+              |   %yellow{--runSpecific=NUM}
+              |   %yellow{--season=winter|spring|summer|autumn}
               |""".stripMargin
     }
 }

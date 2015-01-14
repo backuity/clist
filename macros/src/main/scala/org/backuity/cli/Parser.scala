@@ -3,7 +3,7 @@ package org.backuity.cli
 class Parser(implicit console: Console, exit: Exit) {
   private var version : Option[String] = None
   private var versionCmd : Option[String] = None
-  private var help : Option[String] = Some("help")
+  private var helpCmd : Option[String] = Some("help")
   private var usage : Usage = Usage.Default
   private var showUsageOnError : Boolean = true
   private var exceptionOnError : Boolean = false
@@ -19,11 +19,11 @@ class Parser(implicit console: Console, exit: Exit) {
 
   /** Disable the help command. */
   def noHelp() : Parser = {
-    this.help = None
+    this.helpCmd = None
     this
   }
 
-  def noShowUsageOnError() : Parser = {
+  def noUsageOnError() : Parser = {
     this.showUsageOnError = false
     this
   }
@@ -53,7 +53,7 @@ class Parser(implicit console: Console, exit: Exit) {
   }
 
   def withHelpCommand(name: String) : Parser = {
-    this.help = Some(name)
+    this.helpCmd = Some(name)
     this
   }
 
@@ -70,6 +70,7 @@ class Parser(implicit console: Console, exit: Exit) {
   // terminal methods, i.e that execute the parser
 
   /**
+   * @return None if version or help is executed
    * @throws ParsingException if `noUsageOnError` is enabled
    */
   def withCommands[T <: Command : Manifest](withCommands : T*) : Option[T] = {
@@ -77,32 +78,51 @@ class Parser(implicit console: Console, exit: Exit) {
 
     @inline def fail(msg: String) = this.fail(msg, commands)
 
-    args.indexWhere( ! _.startsWith("-")) match {
-      case -1 => fail("No command found, expected one of " +
-        commands.commands.map(_.label).toList.sorted.mkString(", "))
+    if( parseVersion() || parseHelp(commands) ) {
+      None
+    } else {
+      args.indexWhere(!_.startsWith("-")) match {
+        case -1 => fail("No command found, expected one of " +
+          commands.commands.map(_.label).toList.sorted.mkString(", "))
 
-      case idx =>
-        val (globalOptions, cmdName :: params) = args.splitAt(idx)
-        if (help.contains(cmdName)) {
-          console.println(usage.show(commands))
-          None
-        } else if (versionCmd.contains(cmdName)) {
-          console.println(version.get)
-          None
-        } else {
+        case idx =>
+          val (globalOptions, cmdName :: params) = args.splitAt(idx)
           commands.findByName(cmdName) match {
             case None => fail(s"Unknown command '$cmdName'")
             case Some(cmd) =>
               cmd.read(params ::: globalOptions)
               Some(cmd.asInstanceOf[T])
           }
-        }
+      }
     }
   }
 
-  def withCommand[C <: Command,R](command: C)(f : C => R = { a : C => () }): R = {
-    command.read(args)
-    f(command)
+  def withCommand[C <: Command : Manifest, R](command: C)(f : C => R = { a : C => () }): Option[R] = {
+    if( parseVersion() || parseHelp(Commands(command)) ) {
+      None
+    } else {
+      command.read(args)
+      Some(f(command))
+    }
+  }
+
+  private def parseVersion() : Boolean = {
+    withFirstArg { case arg if versionCmd == Some(arg) =>
+      console.println(version.get)
+    }
+  }
+
+  private def parseHelp(commands: Commands) : Boolean = {
+    withFirstArg { case arg if helpCmd == Some(arg) =>
+      console.println(usage.show(commands))
+    }
+  }
+
+  private def withFirstArg(pf : PartialFunction[String,Unit]) : Boolean = {
+    args.headOption match {
+      case Some(arg) if pf.isDefinedAt(arg) => pf(arg); true
+      case _ => false
+    }
   }
 
   private def fail(msg: String, commands: Commands): Nothing = {
@@ -112,6 +132,7 @@ class Parser(implicit console: Console, exit: Exit) {
     if( exceptionOnError ) {
       throw ParsingException(msg)
     } else {
+      console.println(msg)
       exit.exit(customExitCode.getOrElse(defaultExitCode))
     }
   }

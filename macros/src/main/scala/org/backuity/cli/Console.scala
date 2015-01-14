@@ -34,8 +34,10 @@ object Console {
       buffer.append(message)
     }
 
+    def content : String = buffer.toString
+
     override def toString : String = {
-      buffer.toString
+      "Console.InMemory(bufferSize=" + buffer.length() + ")"
     }
   }
 }
