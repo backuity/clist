@@ -1,4 +1,4 @@
-import java.lang.System.lineSeparator
+import java.lang.System.{lineSeparator => crlf}
 
 import org.backuity.cli.Cli._
 import org.backuity.cli._
@@ -32,7 +32,7 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def incorrectArgument_Enum(): Unit = {
-    Cli.parse(Array("--season=summr", "cho")).withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
+    Cli.parse(Array("--season=summr", "cho")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
       "Incorrect parameter season 'summr', expected one of autumn,spring,summer,winter")
   }
 
@@ -44,7 +44,7 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
   @Test
   def wrongCommandShouldPrintErrorAndExit(): Unit = {
     Cli.parse(Array("baaad")).noUsageOnError().exitCode(123).withCommands(Run,Show,Dry) must exitWithCode(123)
-    console.content must_== ("Unknown command 'baaad'" + lineSeparator())
+    console.content must_== ("Unknown command 'baaad'" + crlf)
   }
 
   @Test
@@ -56,7 +56,7 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
   @Test
   def version(): Unit = {
     Cli.parse(Array("version")).version("1.2.3").withCommands(Run,Show,Dry) must_== None
-    console.content must_== ("1.2.3" + lineSeparator())
+    console.content must_== ("1.2.3" + crlf)
   }
 
   @Test
@@ -67,13 +67,20 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
   @Test
   def showUsageOnError(): Unit = {
     Cli.parse(Array("incorrect")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException]
-    console.content must_== (Usage.Default.show(Commands(Run,Show,Dry)) + lineSeparator())
+    console.content must_== (Usage.Default.show(Commands(Run,Show,Dry)) + crlf)
   }
 
   @Test
   def overrideVersionCommand(): Unit = {
     Cli.parse(Array("--vers")).version("1.0.x", command = "--vers").withCommands(Run,Show,Dry) must_== None
-    console.content must_== ("1.0.x" + lineSeparator())
+    console.content must_== ("1.0.x" + crlf)
+  }
+
+  @Test
+  def incorrectCommandOption(): Unit = {
+    Cli.parse(Array("run", "target", "--unknown-option")).withCommands(Run,Show,Dry) must exitWithCode(1)
+    console.content must_== (Usage.Default.show(Commands(Run,Show,Dry)) + crlf +
+      "No option found for --unknown-option" + crlf)
   }
 }
 

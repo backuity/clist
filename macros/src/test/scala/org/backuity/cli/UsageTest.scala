@@ -6,54 +6,64 @@ import org.junit.Test
 
 class UsageTest extends JunitMatchers {
 
-    import UsageTest._
-    import org.backuity.ansi.AnsiFormatter.FormattedHelper
+  import UsageTest._
+  import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
-    @Test
-    def fullUsage(): Unit = {
-        Usage.Default.show(Commands(Run, Show, Dry)) must_==
-            ansi"""%underline{Usage}
-              |
-              | %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}
-              |
-              |%underline{Options:}
-              |
-              |   %yellow{--1}                                  : This is a wonderful command
-              |   %yellow{--opt2=STRING}                        : Man you should try this one
-              |   %yellow{--season=winter|spring|summer|autumn}
-              |
-              |%underline{Commands:}
-              |
-              |   %bold{cho} : show the shit!
-              |
-              |   %bold{dry} %yellow{[command options]}
-              |      %yellow{--A=NUM}
-              |      %yellow{--optB}  : some flag
-              |
-              |   %bold{run} <target> %yellow{[command options]} : run run baby run
-              |      %yellow{--A=NUM}
-              |      %yellow{--optB}            : some flag
-              |      %yellow{--runSpecific=NUM}
-              |""".stripMargin
-    }
+  @Test
+  def fullUsage(): Unit = {
+      Usage.Default.show(Commands(Run, Show, Dry)) must_==
+          ansi"""%underline{Usage}
+            |
+            | %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}
+            |
+            |%underline{Options:}
+            |
+            |   %yellow{--1}                                  : This is a wonderful command
+            |   %yellow{--opt2=STRING}                        : Man you should try this one
+            |   %yellow{--season=winter|spring|summer|autumn}
+            |
+            |%underline{Commands:}
+            |
+            |   %bold{cho} : show the shit!
+            |
+            |   %bold{dry} %yellow{[command options]}
+            |      %yellow{--A=NUM}
+            |      %yellow{--optB}  : some flag
+            |
+            |   %bold{run} <target> %yellow{[command options]} : run run baby run
+            |      %yellow{--A=NUM}
+            |      %yellow{--optB}            : some flag
+            |      %yellow{--runSpecific=NUM}
+            |""".stripMargin
+  }
 
-    @Test
-    def singleCommandUsage(): Unit = {
-      Usage.Default.show(Commands(Run)) must_==
-        ansi"""%underline{Usage}
-              |
-              | %bold{run} <target> %yellow{[options]} : run run baby run
-              |
-              |%underline{Options:}
-              |
-              |   %yellow{--1}                                  : This is a wonderful command
-              |   %yellow{--A=NUM}
-              |   %yellow{--opt2=STRING}                        : Man you should try this one
-              |   %yellow{--optB}                               : some flag
-              |   %yellow{--runSpecific=NUM}
-              |   %yellow{--season=winter|spring|summer|autumn}
-              |""".stripMargin
-    }
+  @Test
+  def singleCommandUsage(): Unit = {
+    Usage.Default.show(Commands(Run)) must_==
+      ansi"""%underline{Usage}
+            |
+            | %bold{run} <target> %yellow{[options]} : run run baby run
+            |
+            |%underline{Options:}
+            |
+            |   %yellow{--1}                                  : This is a wonderful command
+            |   %yellow{--A=NUM}
+            |   %yellow{--opt2=STRING}                        : Man you should try this one
+            |   %yellow{--optB}                               : some flag
+            |   %yellow{--runSpecific=NUM}
+            |   %yellow{--season=winter|spring|summer|autumn}
+            |""".stripMargin
+  }
+
+  @Test
+  def noOptionCmdUsage(): Unit = {
+    Usage.Default.show(Commands(NoOptionCmd)) must_==
+      ansi"""%underline{Usage}
+            |
+            | %bold{nooptioncmd}
+            |""".stripMargin
+  }
+
 }
 
 object UsageTest {
@@ -82,4 +92,6 @@ object UsageTest {
     }
 
     object Dry extends Command with SomeCategoryOptions
+
+    object NoOptionCmd extends Command
 }

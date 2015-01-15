@@ -76,33 +76,36 @@ class Parser(implicit console: Console, exit: Exit) {
   def withCommands[T <: Command : Manifest](withCommands : T*) : Option[T] = {
     val commands = Commands(withCommands : _*)
 
-    @inline def fail(msg: String) = this.fail(msg, commands)
-
     if( parseVersion() || parseHelp(commands) ) {
       None
     } else {
-      args.indexWhere(!_.startsWith("-")) match {
-        case -1 => fail("No command found, expected one of " +
-          commands.commands.map(_.label).toList.sorted.mkString(", "))
+      withParsingException(commands) {
+        args.indexWhere(!_.startsWith("-")) match {
+          case -1 => throw ParsingException("No command found, expected one of " +
+            commands.commands.map(_.label).toList.sorted.mkString(", "))
 
-        case idx =>
-          val (globalOptions, cmdName :: params) = args.splitAt(idx)
-          commands.findByName(cmdName) match {
-            case None => fail(s"Unknown command '$cmdName'")
-            case Some(cmd) =>
-              cmd.read(params ::: globalOptions)
-              Some(cmd.asInstanceOf[T])
-          }
+          case idx =>
+            val (globalOptions, cmdName :: params) = args.splitAt(idx)
+            commands.findByName(cmdName) match {
+              case None => throw ParsingException(s"Unknown command '$cmdName'")
+              case Some(cmd) =>
+                cmd.read(params ::: globalOptions)
+                Some(cmd.asInstanceOf[T])
+            }
+        }
       }
     }
   }
 
   def withCommand[C <: Command : Manifest, R](command: C)(f : C => R = { a : C => () }): Option[R] = {
-    if( parseVersion() || parseHelp(Commands(command)) ) {
+    val commands = Commands(command)
+    if( parseVersion() || parseHelp(commands) ) {
       None
     } else {
-      command.read(args)
-      Some(f(command))
+      withParsingException(commands) {
+        command.read(args)
+        Some(f(command))
+      }
     }
   }
 
@@ -125,14 +128,25 @@ class Parser(implicit console: Console, exit: Exit) {
     }
   }
 
-  private def fail(msg: String, commands: Commands): Nothing = {
+  private def withParsingException[T](commands: Commands)(f : => T): T = {
+    try {
+      f
+    } catch {
+      case e : ParsingException => fail(Right(e), commands)
+    }
+  }
+
+  private def fail(error: Either[String,ParsingException], commands: Commands): Nothing = {
     if( showUsageOnError ) {
       console.println(usage.show(commands))
     }
     if( exceptionOnError ) {
-      throw ParsingException(msg)
+      error match {
+        case Left(msg) => throw ParsingException(msg)
+        case Right(ex) => throw ex
+      }
     } else {
-      console.println(msg)
+      console.println(error.fold(identity, _.msg))
       exit.exit(customExitCode.getOrElse(defaultExitCode))
     }
   }

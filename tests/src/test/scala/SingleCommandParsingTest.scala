@@ -3,10 +3,14 @@ import Cli.{arg,opt}
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
+import java.lang.System.{lineSeparator => crlf}
+
 
 class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   import SingleCommandParsingTest._
+
+  implicit val console = new Console.InMemory
 
   @Test
   def parseOptionalArgument(): Unit = {
@@ -90,14 +94,21 @@ class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def abbrevOnlyShouldFailForLongSyntax(): Unit = {
-    Cli.parse(Array("--a")).withCommand(new RunWithAbbrev)() must throwA[ParsingException].withMessage(
+    Cli.parse(Array("--a")).throwExceptionOnError().withCommand(new RunWithAbbrev)() must throwA[ParsingException].withMessage(
       "No option found for --a")
   }
 
   @Test
   def doNotReuseTheSameOptionMoreThanOnce(): Unit = {
-    Cli.parse(Array("-o", "--opt1")).withCommand(new RunWithAbbrev)() must throwA[ParsingException].withMessage(
+    Cli.parse(Array("-o", "--opt1")).throwExceptionOnError().withCommand(new RunWithAbbrev)() must throwA[ParsingException].withMessage(
       "No option found for --opt1")
+  }
+
+  @Test
+  def incorrectCommandOption(): Unit = {
+    Cli.parse(Array("target", "--unknown-option")).withCommand(new Run)() must exitWithCode(1)
+    console.content must_== (Usage.Default.show(Commands(new Run)) + crlf +
+      "No option found for --unknown-option" + crlf)
   }
 }
 

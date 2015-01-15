@@ -111,19 +111,23 @@ object Usage {
       if( commands.size == 1 ) {
         val command = commands.commands.head
         add(" "); addCommandSynopsis(command, command.options)
-        addLine()
-        addLine(ansi"%underline{Options:}")
-        addLine()
-        indent {
-          addOptions(command.options)
+        if( command.options.nonEmpty ) {
+          addLine()
+          addLine(ansi"%underline{Options:}")
+          addLine()
+          indent {
+            addOptions(command.options)
+          }
         }
-      } else {
+      } else { // commands.size > 1
         addLine(ansi" %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}")
-        addLine()
-        addLine(ansi"%underline{Options:}")
-        addLine()
-        indent {
-          addOptions(commands.options)
+        if( commands.options.nonEmpty ) {
+          addLine()
+          addLine(ansi"%underline{Options:}")
+          addLine()
+          indent {
+            addOptions(commands.options)
+          }
         }
         addLine()
         addLine(ansi"%underline{Commands:}")
