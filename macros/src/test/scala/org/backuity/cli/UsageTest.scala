@@ -11,10 +11,10 @@ class UsageTest extends JunitMatchers {
 
   @Test
   def fullUsage(): Unit = {
-      Usage.Default.show(Commands(Run, Show, Dry)) must_==
+      Usage.Default.show("program-name", Commands(Run, Show, Dry)) must_==
           ansi"""%underline{Usage}
             |
-            | %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}
+            | %bold{program-name} %yellow{[options]} %bold{command} %yellow{[command options]}
             |
             |%underline{Options:}
             |
@@ -39,7 +39,7 @@ class UsageTest extends JunitMatchers {
 
   @Test
   def singleCommandUsage(): Unit = {
-    Usage.Default.show(Commands(Run)) must_==
+    Usage.Default.show("program-name", Commands(Run)) must_==
       ansi"""%underline{Usage}
             |
             | %bold{run} <target> %yellow{[options]} : run run baby run
@@ -57,10 +57,10 @@ class UsageTest extends JunitMatchers {
 
   @Test
   def noOptionCmdUsage(): Unit = {
-    Usage.Default.show(Commands(NoOptionCmd)) must_==
+    Usage.Default.show("program-name", Commands(NoOptionCmd)) must_==
       ansi"""%underline{Usage}
             |
-            | %bold{nooptioncmd}
+            | %bold{no-option-cmd}
             |""".stripMargin
   }
 

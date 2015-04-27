@@ -66,8 +66,12 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def showUsageOnError(): Unit = {
-    Cli.parse(Array("incorrect")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException]
-    console.content must_== (Usage.Default.show(Commands(Run,Show,Dry)) + crlf)
+    Cli.parse(Array("incorrect"))
+        .throwExceptionOnError()
+        .withProgramName("x")
+        .withCommands(Run,Show,Dry) must throwA[ParsingException]
+
+    console.content must_== (Usage.Default.show("x",Commands(Run,Show,Dry)) + crlf)
   }
 
   @Test
@@ -78,8 +82,11 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def incorrectCommandOption(): Unit = {
-    Cli.parse(Array("run", "target", "--unknown-option")).withCommands(Run,Show,Dry) must exitWithCode(1)
-    console.content must_== (Usage.Default.show(Commands(Run,Show,Dry)) + crlf +
+    Cli.parse(Array("run", "target", "--unknown-option"))
+        .withProgramName("x")
+        .withCommands(Run,Show,Dry) must exitWithCode(1)
+
+    console.content must_== (Usage.Default.show("x",Commands(Run,Show,Dry)) + crlf +
       "No option found for --unknown-option" + crlf)
   }
 }

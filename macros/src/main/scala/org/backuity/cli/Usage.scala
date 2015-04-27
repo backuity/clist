@@ -1,7 +1,7 @@
 package org.backuity.cli
 
 trait Usage {
-  def show(commands: Commands) : String
+  def show(programName: String, commands: Commands) : String
 }
 
 object Usage {
@@ -30,7 +30,7 @@ object Usage {
 
     val indentString = "   "
 
-    override def show(commands: Commands): String = {
+    override def show(programName: String, commands: Commands): String = {
 
       val usage = new java.lang.StringBuilder()
       var indentLevel = 0
@@ -120,7 +120,7 @@ object Usage {
           }
         }
       } else { // commands.size > 1
-        addLine(ansi" %bold{cli} %yellow{[options]} %bold{command} %yellow{[command options]}")
+        addLine(ansi" %bold{$programName} %yellow{[options]} %bold{command} %yellow{[command options]}")
         if( commands.options.nonEmpty ) {
           addLine()
           addLine(ansi"%underline{Options:}")

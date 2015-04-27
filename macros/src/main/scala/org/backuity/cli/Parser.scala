@@ -1,6 +1,9 @@
 package org.backuity.cli
 
+import org.backuity.cli.Formatting.ClassUtil
+
 class Parser(implicit console: Console, exit: Exit) {
+  private var customProgramName: Option[String] = None
   private var version : Option[String] = None
   private var versionCmd : Option[String] = None
   private var helpCmd : Option[String] = Some("help")
@@ -50,6 +53,11 @@ class Parser(implicit console: Console, exit: Exit) {
     if( exceptionOnError && customExitCode.isDefined ) {
       sys.error("Cannot use both exit-code and throws-exception-on-error.")
     }
+  }
+
+  def withProgramName(name: String) : Parser = {
+    this.customProgramName = Some(name)
+    this
   }
 
   def withHelpCommand(name: String) : Parser = {
@@ -109,6 +117,16 @@ class Parser(implicit console: Console, exit: Exit) {
     }
   }
 
+  private def programName: String = {
+    customProgramName.getOrElse(guessProgramName)
+  }
+
+  private def guessProgramName : String = {
+    val stack = Thread.currentThread.getStackTrace
+    val main = stack.last
+    main.getClass.spinalCaseName
+  }
+
   private def parseVersion() : Boolean = {
     withFirstArg { case arg if versionCmd == Some(arg) =>
       console.println(version.get)
@@ -117,7 +135,7 @@ class Parser(implicit console: Console, exit: Exit) {
 
   private def parseHelp(commands: Commands) : Boolean = {
     withFirstArg { case arg if helpCmd == Some(arg) =>
-      console.println(usage.show(commands))
+      console.println(usage.show(programName, commands))
     }
   }
 
@@ -138,7 +156,7 @@ class Parser(implicit console: Console, exit: Exit) {
 
   private def fail(error: Either[String,ParsingException], commands: Commands): Nothing = {
     if( showUsageOnError ) {
-      console.println(usage.show(commands))
+      console.println(usage.show(programName, commands))
     }
     if( exceptionOnError ) {
       error match {

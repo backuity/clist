@@ -1,5 +1,7 @@
 package org.backuity.cli
 
+import org.backuity.cli.Formatting.ClassUtil
+
 
 /** @param name if not specified the lower-cased class name will be used */
 abstract class Command(name: String = null, val description: String = "") {
@@ -108,12 +110,7 @@ abstract class Command(name: String = null, val description: String = "") {
   def options = _options
 
   private[this] val _name = if( name != null ) name else {
-    val className = getClass.getSimpleName.toLowerCase
-    if( className.endsWith("$") ) {
-      className.substring(0, className.length - 1)
-    } else {
-      className
-    }
+    getClass.spinalCaseName
   }
 
   private[this] var _arguments : Set[CliArgument[_]] = Set.empty

@@ -107,7 +107,7 @@ class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
   @Test
   def incorrectCommandOption(): Unit = {
     Cli.parse(Array("target", "--unknown-option")).withCommand(new Run)() must exitWithCode(1)
-    console.content must_== (Usage.Default.show(Commands(new Run)) + crlf +
+    console.content must_== (Usage.Default.show("x",Commands(new Run)) + crlf +
       "No option found for --unknown-option" + crlf)
   }
 }
