@@ -5,7 +5,7 @@ object BuildSettings {
   val buildSettings = Seq(
     organization := "org.backuity.cli",
     version := "0.1-SNAPSHOT",
-    scalaVersion := "2.11.4",
+    scalaVersion := "2.11.6",
     // Sonatype OSS deployment
     publishTo <<= version { (v: String) =>
       val nexus = "https://oss.sonatype.org/"
