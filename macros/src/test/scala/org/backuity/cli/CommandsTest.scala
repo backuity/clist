@@ -1,7 +1,7 @@
 package org.backuity.cli
 
 import org.backuity.cli.Cli._
-import org.backuity.matchete.JunitMatchers
+import org.backuity.matchete.{Matcher, JunitMatchers}
 import org.junit.Test
 
 class CommandsTest extends JunitMatchers {
@@ -12,28 +12,28 @@ class CommandsTest extends JunitMatchers {
   def commandsShouldGuessGlobalOptions(): Unit = {
     val cmds = Commands(Run, Show, Graph)
     cmds.options must contain(
-      anOption("opt1"),
-      anOption("opt2"),
-      anOption("season"))
+      option("opt1"),
+      option("opt2"),
+      option("season"))
   }
 
   @Test
   def singleCommandCommands(): Unit = {
     Commands(Run).options must contain(
-      anOption("runSpecific"),
-      anOption("opt1"),
-      anOption("opt2"),
-      anOption("season"))
+      option("runSpecific"),
+      option("opt1"),
+      option("opt2"),
+      option("season"))
   }
 
   @Test
   def emptyCommand(): Unit = {
     Commands() must throwAn[IllegalArgumentException].withMessage(
-      "Cannot constructor an empty Commands")
+      "Commands must have at least one command")
   }
 
-  def anOption(name : String) = an[CliOption[_]](s"argument named $name") {
-    case opt : CliOption[_] => opt.name must_== name
+  def option(name : String) : Matcher[CliOption[_]] = partialFunctionMatcher(s"option $name") {
+    case opt => opt.name must_== name
   }
 }
 

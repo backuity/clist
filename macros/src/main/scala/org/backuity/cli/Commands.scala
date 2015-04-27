@@ -20,7 +20,7 @@ object Commands {
     * @param commands must not be empty
     */
   def apply[T <: Command : Manifest](commands : T*) : Commands = {
-    if( commands.isEmpty ) throw new IllegalArgumentException("Cannot constructor an empty Commands")
+    if( commands.isEmpty ) throw new IllegalArgumentException("Commands must have at least one command")
     val commonArgs = commands.map(_.options).reduce(_.intersect(_))
     new Commands(commonArgs, commands.toSet)
   }
