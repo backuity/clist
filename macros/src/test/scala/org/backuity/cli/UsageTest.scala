@@ -20,6 +20,7 @@ class UsageTest extends JunitMatchers {
             |
             |   %yellow{--1}                                  : This is a wonderful command
             |   %yellow{--opt2=STRING}                        : Man you should try this one
+            |                                          it really rocks
             |   %yellow{--season=winter|spring|summer|autumn}
             |
             |%underline{Commands:}
@@ -28,12 +29,12 @@ class UsageTest extends JunitMatchers {
             |
             |   %bold{dry} %yellow{[command options]}
             |      %yellow{--A=NUM}
-            |      %yellow{--optB}  : some flag
+            |      %yellow{--opt-b} : some flag
             |
             |   %bold{run} <target> %yellow{[command options]} : run run baby run
             |      %yellow{--A=NUM}
-            |      %yellow{--optB}            : some flag
-            |      %yellow{--runSpecific=NUM}
+            |      %yellow{--opt-b}            : some flag
+            |      %yellow{--run-specific=NUM}
             |""".stripMargin
   }
 
@@ -48,9 +49,10 @@ class UsageTest extends JunitMatchers {
             |
             |   %yellow{--1}                                  : This is a wonderful command
             |   %yellow{--A=NUM}
+            |   %yellow{--opt-b}                              : some flag
             |   %yellow{--opt2=STRING}                        : Man you should try this one
-            |   %yellow{--optB}                               : some flag
-            |   %yellow{--runSpecific=NUM}
+            |                                          it really rocks
+            |   %yellow{--run-specific=NUM}
             |   %yellow{--season=winter|spring|summer|autumn}
             |""".stripMargin
   }
@@ -70,7 +72,8 @@ object UsageTest {
     trait GlobalOptions { this : Command =>
         var opt1 = opt[Boolean](name = "1",
             description = "This is a wonderful command")
-        var opt2 = opt[String](description = "Man you should try this one",
+        var opt2 = opt[String](description = "Man you should try this one\n"+
+                                             "it really rocks",
             default = "haha")
 
         var season = opt[Season](default = Season.WINTER)

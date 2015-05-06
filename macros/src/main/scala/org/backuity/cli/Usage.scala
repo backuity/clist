@@ -47,7 +47,9 @@ object Usage {
           usage.append(str)
         } else {
           val pad = if (beginning) indentString * indentLevel else ""
-          usage.append(pad + str)
+          val (trimmedStr,lineBreak) = if( str.endsWith("\n") ) (str.substring(0, str.length - 1),"\n") else (str,"")
+          val indentedStr = trimmedStr.replaceAll("\n","\n" + (indentString * indentLevel))
+          usage.append(pad + indentedStr + lineBreak)
         }
         if( str.endsWith("\n") ) {
           beginning = true
@@ -74,11 +76,13 @@ object Usage {
           case _ => ""
         }
         val padding = " " * (labelMaxSize - label.length)
+        val lineBreakPadding = " " * (labelMaxSize + 3 /* 3 = " : " */)
+        val indentedDescription = description.replaceAll("\n","\n" + lineBreakPadding)
 
         ansi"%yellow{$label}" + (if( description.isEmpty && default.isEmpty ) {
           ""
         } else {
-          padding + " : " + description + (if( !description.isEmpty && !default.isEmpty ) " " else "") + default
+          padding + " : " + indentedDescription + (if( !description.isEmpty && !default.isEmpty ) " " else "") + default
         })
       }
 

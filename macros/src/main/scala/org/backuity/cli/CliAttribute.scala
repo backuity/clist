@@ -1,5 +1,7 @@
 package org.backuity.cli
 
+import org.backuity.cli.Formatting.StringUtil
+
 sealed abstract class CliAttribute[T] {
   val tpe: Class[T]
   val name: String
@@ -92,6 +94,8 @@ object CliOption {
   // this class cannot be within Cli due to some macros restrictions
   class Builder[T : Read : Manifest](command: Command, varName: String) extends CliAttribute.Builder[T](varName) {
 
+    val spinalCasedVarName = varName.toSpinalCase
+
     /**
      * - unless it is a boolean, an optional argument must have a default value
      * - a boolean cannot have a default value (we want to avoid a boolean being true
@@ -118,7 +122,7 @@ object CliOption {
       val longName = if( abbrevOnly != null ) {
         None
       } else {
-        Option(name).orElse(Some(varName.trim))
+        Option(name).orElse(Some(spinalCasedVarName.trim))
       }
 
       command.addOption(CliOption(
