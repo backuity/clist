@@ -4,7 +4,7 @@ import org.backuity.cli.Formatting.ClassUtil
 
 
 /** @param name if not specified the lower-cased class name will be used */
-abstract class Command(name: String = null, val description: String = "") {
+abstract class Command(name: String = null, val description: String = "") extends ValidationUtils {
 
   /** @throws ParsingException if arguments or options cannot be parsed */
   def read(args: List[String]) = {
@@ -13,6 +13,7 @@ abstract class Command(name: String = null, val description: String = "") {
 
     parseArguments()
     parseOptions()
+    applyValidators()
 
     // ------------------------------------
 
@@ -123,5 +124,19 @@ abstract class Command(name: String = null, val description: String = "") {
     _options += opt
   }
 
-  def validate() : Unit = {}
+  private[this] var _validators : Set[Unit => Unit] = Set.empty
+
+  def validate(validator : => Unit) : Unit = {
+    _validators += { _ => validator }
+  }
+
+  def validators : Set[Unit => Unit] = _validators
+
+  private def applyValidators(): Unit = {
+    _validators.foreach( _.apply())
+  }
+
+  def parsingError(msg: String) : Nothing = {
+    throw new ParsingException(msg)
+  }
 }
