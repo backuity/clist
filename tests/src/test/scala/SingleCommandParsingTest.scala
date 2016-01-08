@@ -55,6 +55,8 @@ class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def parseStaticCommandMustResetDefaults(): Unit = {
+    object StaticRun extends RunWithOption
+
     Cli.parse(Array("sun", "--1")).withCommand(StaticRun)()
     StaticRun.target must_== "sun"
     StaticRun.opt1 must_== true
@@ -133,6 +135,4 @@ object SingleCommandParsingTest {
     var opt1 = opt[Boolean](abbrev = "o")
     var a = opt[Boolean](abbrevOnly = "a")
   }
-
-  object StaticRun extends RunWithOption
 }
