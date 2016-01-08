@@ -1,4 +1,4 @@
-# Command Line Interface Toolkit
+# Command Line Interface Toolkit ![Build Status](https://travis-ci.org/backuity/clit.png?branch=master)]
 
 The Backuity CLIT is a scala-only library for quickly building beautiful type-safe modular and reusable mutable CLIs.
 
