@@ -14,6 +14,10 @@ class Parser(implicit console: Console, exit: Exit) {
   private var customExitCode: Option[Int] = None
   private var args: List[String] = Nil
 
+  /**
+    * Specify a version for this program. It adds a version command and prints it
+    * in the usage message.
+    */
   def version(version: String, command: String = "version"): Parser = {
     this.version = Some(version)
     this.versionCmd = Some(command)
@@ -26,12 +30,18 @@ class Parser(implicit console: Console, exit: Exit) {
     this
   }
 
+  /**
+    * Do not print a usage on parsing failure.
+    * By default a usage is printed.
+    */
   def noUsageOnError(): Parser = {
     this.showUsageOnError = false
     this
   }
 
-  /** Throws a `ParsingException` if the parser cannot parse the arguments. */
+  /** Throws a `ParsingException` if the parser cannot parse the arguments.
+    * By default the parser exits the VM (through `System.exit`).
+    */
   def throwExceptionOnError(): Parser = {
     this.exceptionOnError = true
     checkExceptionOnErrorAndExitCode()
@@ -40,7 +50,9 @@ class Parser(implicit console: Console, exit: Exit) {
 
   /**
     * Define which code is used to exit the program if the parser is unabled to parse the arguments.
-    * This option cannot be used together with `noUsageOnError`.
+    * Default exit-code is 1.
+    *
+    * @note This option cannot be used together with `noUsageOnError`.
     */
   // TODO use a macro to enforce the exclusion with noUsageOnError?
   def exitCode(code: Int): Parser = {
@@ -60,11 +72,17 @@ class Parser(implicit console: Console, exit: Exit) {
     this
   }
 
+  /**
+    * Customize the name of the help command, by default 'help'.
+    */
   def withHelpCommand(name: String): Parser = {
     this.helpCmd = Some(name)
     this
   }
 
+  /**
+    * Customize the usage message.
+    */
   def withUsage(usage: Usage): Parser = {
     this.usage = usage
     this
