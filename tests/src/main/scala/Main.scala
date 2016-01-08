@@ -1,5 +1,5 @@
-import org.backuity.cli.{Cli, Commands, Usage, Command}
-import org.backuity.cli.Cli.{opt,arg}
+import org.backuity.clit.{Cli, Commands, Usage, Command}
+import org.backuity.clit.Cli.{opt,arg}
 
 object Main {
 

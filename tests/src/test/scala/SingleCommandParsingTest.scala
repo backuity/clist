@@ -1,4 +1,4 @@
-import org.backuity.cli._
+import org.backuity.clit._
 import Cli.{arg,opt}
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test

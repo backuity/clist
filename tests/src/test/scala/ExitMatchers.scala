@@ -1,4 +1,4 @@
-import org.backuity.cli.{Exit, ExitException}
+import org.backuity.clit.{Exit, ExitException}
 import org.backuity.matchete.MatcherSupport
 
 trait ExitMatchers extends MatcherSupport {

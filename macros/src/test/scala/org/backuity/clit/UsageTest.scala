@@ -1,6 +1,6 @@
-package org.backuity.cli
+package org.backuity.clit
 
-import org.backuity.cli.Cli._
+import org.backuity.clit.Cli._
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 
@@ -16,14 +16,14 @@ class UsageTest extends JunitMatchers {
             |
             | %bold{program-name} %yellow{[options]} %bold{command} %yellow{[command options]}
             |
-            |%underline{Options:}
+            |%underline{Options}
             |
             |   %yellow{--1}                                  : This is a wonderful command
             |   %yellow{--opt2=STRING}                        : Man you should try this one
             |                                          it really rocks
             |   %yellow{--season=winter|spring|summer|autumn}
             |
-            |%underline{Commands:}
+            |%underline{Commands}
             |
             |   %bold{cho} : show the shit!
             |
@@ -45,7 +45,7 @@ class UsageTest extends JunitMatchers {
             |
             | %bold{run} <target> %yellow{[options]} : run run baby run
             |
-            |%underline{Options:}
+            |%underline{Options}
             |
             |   %yellow{--1}                                  : This is a wonderful command
             |   %yellow{--A=NUM}

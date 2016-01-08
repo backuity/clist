@@ -1,4 +1,4 @@
-package org.backuity.cli
+package org.backuity.clit
 
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
@@ -47,9 +47,9 @@ object Cli {
     }
 
     if (isOption) {
-      q"""new _root_.org.backuity.cli.CliOption.Builder(this, ${term.name.toString.trim})"""
+      q"""new _root_.org.backuity.clit.CliOption.Builder(this, ${term.name.toString.trim})"""
     } else {
-      q"""new _root_.org.backuity.cli.CliArgument.Builder(this, ${term.name.toString.trim})"""
+      q"""new _root_.org.backuity.clit.CliArgument.Builder(this, ${term.name.toString.trim})"""
     }
   }
 

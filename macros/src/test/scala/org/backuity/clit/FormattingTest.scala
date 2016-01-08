@@ -1,6 +1,6 @@
-package org.backuity.cli
+package org.backuity.clit
 
-import org.backuity.cli.Formatting.ClassUtil
+import org.backuity.clit.Formatting.ClassUtil
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 

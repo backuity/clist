@@ -1,9 +1,10 @@
 import java.lang.System.{lineSeparator => crlf}
 
-import org.backuity.cli.Cli._
-import org.backuity.cli._
+import org.backuity.clit.Cli._
+import org.backuity.clit._
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
+import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
 class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
@@ -25,9 +26,9 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
   @Test
   def noCommandSpecified(): Unit = {
     Cli.parse(Array("--1")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
-      "No command found, expected one of cho, dry, run")
+      ansi"No command found, expected one of %bold{cho}, %bold{dry}, %bold{run}")
     Cli.parse(Array()).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
-      "No command found, expected one of cho, dry, run")
+      ansi"No command found, expected one of %bold{cho}, %bold{dry}, %bold{run}")
   }
 
   @Test

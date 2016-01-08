@@ -1,4 +1,4 @@
-package org.backuity.cli
+package org.backuity.clit
 
 trait ValidationUtils {
 

@@ -1,6 +1,7 @@
-package org.backuity.cli
+package org.backuity.clit
 
-import org.backuity.cli.Formatting.ClassUtil
+import org.backuity.ansi.AnsiFormatter.FormattedHelper
+import org.backuity.clit.Formatting.ClassUtil
 
 class Parser(implicit console: Console, exit: Exit) {
   private var customProgramName: Option[String] = None
@@ -40,7 +41,8 @@ class Parser(implicit console: Console, exit: Exit) {
   }
 
   /** Throws a `ParsingException` if the parser cannot parse the arguments.
-    * By default the parser exits the VM (through `System.exit`).
+    * By default the parser prints the error message and exits the VM
+    * (through `System.exit`).
     */
   def throwExceptionOnError(): Parser = {
     this.exceptionOnError = true
@@ -108,7 +110,7 @@ class Parser(implicit console: Console, exit: Exit) {
       withParsingException(commands) {
         args.indexWhere(!_.startsWith("-")) match {
           case -1 => throw ParsingException("No command found, expected one of " +
-            commands.commands.map(_.label).toList.sorted.mkString(", "))
+            commands.commands.map(_.label).toList.sorted.map(name => ansi"%bold{$name}").mkString(", "))
 
           case idx =>
             val (globalOptions, cmdName :: params) = args.splitAt(idx)

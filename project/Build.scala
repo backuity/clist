@@ -22,7 +22,7 @@ object BuildSettings {
   )
 }
 
-object CliBuild extends Build {
+object ClitBuild extends Build {
 
   import BuildSettings._
 
@@ -34,7 +34,7 @@ object CliBuild extends Build {
   lazy val macros = Project("macros",
     file("macros"),
     settings = buildSettings ++ Seq(
-      name := "cli",
+      name := "clit",
       libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-reflect" % _),
       libraryDependencies ++= Seq(
           "org.backuity" %% "ansi-interpolator" % "1.1" % "provided",
@@ -50,6 +50,7 @@ object CliBuild extends Build {
     file("tests"),
     settings = buildSettings ++ Seq(
       libraryDependencies ++= Seq(
+        "org.backuity" %% "ansi-interpolator" % "1.1" % "provided",
         // Tests
         "org.backuity" %% "matchete" % "1.11" % "test",
         "com.novocode" % "junit-interface" % "0.11" % "test"),

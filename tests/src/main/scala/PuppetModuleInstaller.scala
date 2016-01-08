@@ -1,6 +1,6 @@
-import org.backuity.cli.{ParsingException, Cli, Command}
+import org.backuity.clit.{ParsingException, Cli, Command}
 
-import org.backuity.cli.Cli.{opt,arg}
+import org.backuity.clit.Cli.{opt,arg}
 
 object PuppetModuleInstaller {
 

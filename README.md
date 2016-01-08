@@ -1,6 +1,6 @@
-# Backuity Command Line Interface
+# Command Line Interface Toolkit
 
-The Backuity CLI is a scala-only library for quickly building beautiful type-safe modular and reusable mutable CLIs.
+The Backuity CLIT is a scala-only library for quickly building beautiful type-safe modular and reusable mutable CLIs.
 
 ## You said beautiful?
 

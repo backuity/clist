@@ -1,4 +1,4 @@
-package org.backuity.cli
+package org.backuity.clit
 
 trait Usage {
   def show(programName: String, commands: Commands): String
@@ -118,7 +118,7 @@ object Usage {
         addCommandSynopsis(command, command.options)
         if (command.options.nonEmpty) {
           addLine()
-          addLine(ansi"%underline{Options:}")
+          addLine(ansi"%underline{Options}")
           addLine()
           indent {
             addOptions(command.options)
@@ -129,14 +129,14 @@ object Usage {
         addLine(ansi" %bold{$programName} %yellow{[options]} %bold{command} %yellow{[command options]}")
         if (commands.options.nonEmpty) {
           addLine()
-          addLine(ansi"%underline{Options:}")
+          addLine(ansi"%underline{Options}")
           addLine()
           indent {
             addOptions(commands.options)
           }
         }
         addLine()
-        addLine(ansi"%underline{Commands:}")
+        addLine(ansi"%underline{Commands}")
         indent {
           for (command <- commands.commandsSortedByLabel) {
             addLine()
