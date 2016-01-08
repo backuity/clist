@@ -1,7 +1,6 @@
 package org.backuity.clit
 
-import org.backuity.clit.Cli._
-import org.backuity.matchete.{Matcher, JunitMatchers}
+import org.backuity.matchete.{JunitMatchers, Matcher}
 import org.junit.Test
 
 class CommandsTest extends JunitMatchers {

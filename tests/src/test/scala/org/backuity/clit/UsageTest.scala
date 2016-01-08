@@ -1,6 +1,5 @@
 package org.backuity.clit
 
-import org.backuity.clit.Cli._
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 

@@ -1,9 +1,9 @@
-import org.backuity.clit._
-import Cli.{arg,opt}
-import org.backuity.matchete.JunitMatchers
-import org.junit.Test
+package org.backuity.clit
 
 import java.lang.System.{lineSeparator => crlf}
+
+import org.backuity.matchete.JunitMatchers
+import org.junit.Test
 
 
 class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {

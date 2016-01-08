@@ -1,10 +1,10 @@
+package org.backuity.clit
+
 import java.lang.System.{lineSeparator => crlf}
 
-import org.backuity.clit.Cli._
-import org.backuity.clit._
+import org.backuity.ansi.AnsiFormatter.FormattedHelper
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
-import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
 class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 

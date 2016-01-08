@@ -1,10 +1,9 @@
-package org.backuity.clit
+package org.backuity
 
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-object Cli {
-
+package object clit {
   /**
     * Define an attribute of a [[Command]] to be a command line argument.
     *
@@ -52,9 +51,4 @@ object Cli {
       q"""new _root_.org.backuity.clit.CliArgument.Builder(this, ${term.name.toString.trim})"""
     }
   }
-
-  def parse(args: Array[String])(implicit console: Console, exit: Exit): Parser = {
-    new Parser().parse(args)
-  }
 }
-

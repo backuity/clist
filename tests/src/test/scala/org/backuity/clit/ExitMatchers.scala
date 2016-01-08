@@ -1,4 +1,5 @@
-import org.backuity.clit.{Exit, ExitException}
+package org.backuity.clit
+
 import org.backuity.matchete.MatcherSupport
 
 trait ExitMatchers extends MatcherSupport {
