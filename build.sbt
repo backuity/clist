@@ -1,6 +1,7 @@
 lazy val commonSettings = Seq(
   organization := "org.backuity.clit",
   scalaVersion := "2.11.6",
+  version := "1.0.0",
 
   scalacOptions ++= Seq("-deprecation", "-unchecked"),
 
@@ -44,6 +45,10 @@ lazy val releaseSettings = commonSettings ++ Seq(
       </developers>
 )
 
+lazy val localSettings = commonSettings ++ Seq(
+  publish := {},
+  publishLocal := {}
+)
 
 val ansi = "org.backuity" %% "ansi-interpolator" % "1.1" % "compileonly"
 val matchete = Seq(
@@ -56,6 +61,7 @@ lazy val root = project.in(file(".")).
   settings(
     publishArtifact := false).
   aggregate(
+    core,
     macros,
     tests,
     demo)
@@ -74,18 +80,15 @@ lazy val macros = project.in(file("macros")).
   dependsOn(core)
 
 lazy val tests = project.in(file("tests")).
-  settings(commonSettings: _*).
+  settings(localSettings: _*).
   settings(
-    libraryDependencies ++= matchete :+ ansi,
-    publishArtifact := false).
+    libraryDependencies ++= matchete :+ ansi).
   dependsOn(
     core,
     macros) // % "compileonly") does not work!
 
 lazy val demo = project.in(file("demo")).
-  settings(commonSettings: _*).
-  settings(
-    publishArtifact := false).
+  settings(localSettings: _*).
   dependsOn(
     core,
     macros) // % "compileonly") does not work!
