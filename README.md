@@ -6,11 +6,12 @@ The Backuity CLI is a scala-only library for quickly building beautiful type-saf
 
 An image is worth a thousand words, here is a taste of what you'd get for free:
 
+![usage-demo](usage-demo.png)
 
 ## Why mutable?
 
-We think that CLIs are sequential and therefore do not require an immutable approach. Immutability often comes at the
-expense of simplicity. If you are looking for an immutable CLI library you should take a look at projects like https://github.com/scopt/scopt.
+We think that CLIs do not require an immutable approach. Immutability often comes at the expense of simplicity.
+If you are looking for an immutable CLI library you should take a look at projects like https://github.com/scopt/scopt.
 
 ## Let's start - Single Command CLI
 
