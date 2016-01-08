@@ -3,7 +3,7 @@ package org.backuity.clit
 import org.backuity.ansi.AnsiFormatter.FormattedHelper
 import org.backuity.clit.Formatting.ClassUtil
 
-class Parser(implicit console: Console, exit: Exit) {
+class Parser(args: List[String])(implicit console: Console, exit: Exit) {
   private var customProgramName: Option[String] = None
   private var version: Option[String] = None
   private var versionCmd: Option[String] = None
@@ -13,7 +13,6 @@ class Parser(implicit console: Console, exit: Exit) {
   private var exceptionOnError: Boolean = false
   private val defaultExitCode: Int = 1
   private var customExitCode: Option[Int] = None
-  private var args: List[String] = Nil
 
   /**
     * Specify a version for this program. It adds a version command and prints it
@@ -87,11 +86,6 @@ class Parser(implicit console: Console, exit: Exit) {
     */
   def withUsage(usage: Usage): Parser = {
     this.usage = usage
-    this
-  }
-
-  def parse(args: Array[String]): Parser = {
-    this.args = args.toList
     this
   }
 
