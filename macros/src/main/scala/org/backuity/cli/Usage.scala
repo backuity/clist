@@ -1,7 +1,7 @@
 package org.backuity.cli
 
 trait Usage {
-  def show(programName: String, commands: Commands) : String
+  def show(programName: String, commands: Commands): String
 }
 
 object Usage {
@@ -10,20 +10,20 @@ object Usage {
 
     import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
-    def showDefault(t : Any): String = {
-      if( t.getClass.isEnum ) {
+    def showDefault(t: Any): String = {
+      if (t.getClass.isEnum) {
         t.toString.toLowerCase
       } else {
         t.toString
       }
     }
 
-    def showValuesFor(clazz : Class[_]) : String = {
-      if( clazz == classOf[Int] || clazz == classOf[Long] ) {
+    def showValuesFor(clazz: Class[_]): String = {
+      if (clazz == classOf[Int] || clazz == classOf[Long]) {
         "=NUM"
-      } else if( clazz == classOf[String] ) {
+      } else if (clazz == classOf[String]) {
         "=STRING"
-      } else if( clazz.isEnum ) {
+      } else if (clazz.isEnum) {
         "=" + clazz.getEnumConstants.map(_.toString.toLowerCase).mkString("|")
       } else ""
     }
@@ -38,37 +38,37 @@ object Usage {
 
       def incIndent(): Unit = { indentLevel += 1 }
       def decIndent(): Unit = { indentLevel -= 1 }
-      def indent( f : => Unit ): Unit = { incIndent(); f; decIndent() }
+      def indent(f: => Unit): Unit = { incIndent(); f; decIndent() }
 
       def addLine(str: String = ""): Unit = { add(str + "\n") }
       def add(str: String): Unit = {
-        if( str.trim.isEmpty ) {
+        if (str.trim.isEmpty) {
           // do not pad for nothing
           usage.append(str)
         } else {
           val pad = if (beginning) indentString * indentLevel else ""
-          val (trimmedStr,lineBreak) = if( str.endsWith("\n") ) (str.substring(0, str.length - 1),"\n") else (str,"")
-          val indentedStr = trimmedStr.replaceAll("\n","\n" + (indentString * indentLevel))
+          val (trimmedStr, lineBreak) = if (str.endsWith("\n")) (str.substring(0, str.length - 1), "\n") else (str, "")
+          val indentedStr = trimmedStr.replaceAll("\n", "\n" + (indentString * indentLevel))
           usage.append(pad + indentedStr + lineBreak)
         }
-        if( str.endsWith("\n") ) {
+        if (str.endsWith("\n")) {
           beginning = true
         } else {
           beginning = false
         }
       }
 
-      def optLabel(arg: CliOption[_]) : String = {
+      def optLabel(arg: CliOption[_]): String = {
         (arg.abbrev match {
-          case Some(abbrev) => "-" + abbrev + (if( arg.longName.isDefined ) ", " else "")
-          case None         => ""
+          case Some(abbrev) => "-" + abbrev + (if (arg.longName.isDefined) ", " else "")
+          case None => ""
         }) + (arg.longName match {
           case Some(name) => "--" + name + showValuesFor(arg.tpe)
-          case None       => ""
+          case None => ""
         })
       }
 
-      def optText(labelMaxSize: Int, arg: CliOption[_]) : String = {
+      def optText(labelMaxSize: Int, arg: CliOption[_]): String = {
         val label = optLabel(arg)
         val description = arg.description.getOrElse("")
         val default = arg.default match {
@@ -77,25 +77,25 @@ object Usage {
         }
         val padding = " " * (labelMaxSize - label.length)
         val lineBreakPadding = " " * (labelMaxSize + 3 /* 3 = " : " */)
-        val indentedDescription = description.replaceAll("\n","\n" + lineBreakPadding)
+        val indentedDescription = description.replaceAll("\n", "\n" + lineBreakPadding)
 
-        ansi"%yellow{$label}" + (if( description.isEmpty && default.isEmpty ) {
+        ansi"%yellow{$label}" + (if (description.isEmpty && default.isEmpty) {
           ""
         } else {
-          padding + " : " + indentedDescription + (if( !description.isEmpty && !default.isEmpty ) " " else "") + default
+          padding + " : " + indentedDescription + (if (!description.isEmpty && !default.isEmpty) " " else "") + default
         })
       }
 
       def addCommandSynopsis(command: Command,
                              commandSpecificOpts: Set[CliOption[_]],
-                             optionLabel : String = "options"): Unit = {
+                             optionLabel: String = "options"): Unit = {
         add(ansi"%bold{${command.label}}")
-        val description = if( command.description != "" ) " : " + command.description else ""
+        val description = if (command.description != "") " : " + command.description else ""
 
-        if( command.arguments.nonEmpty ) {
+        if (command.arguments.nonEmpty) {
           add(" " + command.arguments.map(arg => s"<${arg.name}>").mkString(" "))
         }
-        if( commandSpecificOpts.nonEmpty ) {
+        if (commandSpecificOpts.nonEmpty) {
           add(ansi" %yellow{[$optionLabel]}")
         }
         addLine(description)
@@ -105,17 +105,18 @@ object Usage {
       def addOptions(opts: Set[CliOption[_]]): Unit = {
         val labelMaxSize = opts.map(optLabel).map(_.length).max
 
-        for( opt <- opts.toList.sortBy(_.name) ) {
+        for (opt <- opts.toList.sortBy(_.name)) {
           addLine(optText(labelMaxSize, opt))
         }
       }
 
       addLine(ansi"%underline{Usage}")
       addLine()
-      if( commands.size == 1 ) {
+      if (commands.size == 1) {
         val command = commands.commands.head
-        add(" "); addCommandSynopsis(command, command.options)
-        if( command.options.nonEmpty ) {
+        add(" ")
+        addCommandSynopsis(command, command.options)
+        if (command.options.nonEmpty) {
           addLine()
           addLine(ansi"%underline{Options:}")
           addLine()
@@ -123,9 +124,10 @@ object Usage {
             addOptions(command.options)
           }
         }
-      } else { // commands.size > 1
+      } else {
+        // commands.size > 1
         addLine(ansi" %bold{$programName} %yellow{[options]} %bold{command} %yellow{[command options]}")
-        if( commands.options.nonEmpty ) {
+        if (commands.options.nonEmpty) {
           addLine()
           addLine(ansi"%underline{Options:}")
           addLine()
@@ -143,7 +145,7 @@ object Usage {
 
             // body
             // TODO args
-            if( commandSpecificOpts.nonEmpty ) {
+            if (commandSpecificOpts.nonEmpty) {
               indent {
                 addOptions(commandSpecificOpts)
               }

@@ -26,16 +26,16 @@ abstract class Command(name: String = null, val description: String = "") extend
       }
     }
 
-    def hasArg : Boolean = remainingArgs.nonEmpty
+    def hasArg: Boolean = remainingArgs.nonEmpty
 
-    def parseArguments(): Unit =  {
-      for( cmdArg <- arguments ) {
+    def parseArguments(): Unit = {
+      for (cmdArg <- arguments) {
         popArg() match {
           case None =>
             cmdArg match {
-              case _ : CliMandatoryArgument[_] =>
+              case _: CliMandatoryArgument[_] =>
                 throw ParsingException("No argument provided for " + cmdArg.name)
-              case optArg : CliOptionalArgument[_] =>
+              case optArg: CliOptionalArgument[_] =>
                 setVar(cmdArg, optArg.default)
             }
 
@@ -50,37 +50,37 @@ abstract class Command(name: String = null, val description: String = "") extend
 
       def remainingOptions = options -- processedOptions
 
-      for( arg <- remainingArgs ) {
+      for (arg <- remainingArgs) {
         findOptionForArg(remainingOptions, arg) match {
           case None => throw ParsingException("No option found for " + arg)
-          case Some((option,value)) =>
+          case Some((option, value)) =>
             processedOptions += option
             readAndSetVar(option, value)
         }
       }
 
-      for( option <- remainingOptions ) {
+      for (option <- remainingOptions) {
         setVar(option, option.default)
       }
     }
   }
 
   /**
-   * @return the matching option along with its value
-   */
-  private def findOptionForArg(options : Set[CliOption[_]], arg: String) : Option[(CliOption[_], String)] = {
-    for( option <- options ) {
+    * @return the matching option along with its value
+    */
+  private def findOptionForArg(options: Set[CliOption[_]], arg: String): Option[(CliOption[_], String)] = {
+    for (option <- options) {
       option.abbrev.map { abbrev =>
-        if( arg == ("-" + abbrev) ) {
+        if (arg == ("-" + abbrev)) {
           return Some(option, "")
         }
       }
       option.longName.map { longName =>
-        if( arg == ("--" + longName) ) {
+        if (arg == ("--" + longName)) {
           return Some(option, "")
         }
         val key = "--" + longName + "="
-        if( arg.startsWith(key) ) {
+        if (arg.startsWith(key)) {
           return Some(option, arg.substring(key.length))
         }
       }
@@ -110,33 +110,34 @@ abstract class Command(name: String = null, val description: String = "") extend
   def arguments = _arguments
   def options = _options
 
-  private[this] val _name = if( name != null ) name else {
+  private[this] val _name = if (name != null) name
+  else {
     getClass.spinalCaseName
   }
 
-  private[this] var _arguments : Set[CliArgument[_]] = Set.empty
+  private[this] var _arguments: Set[CliArgument[_]] = Set.empty
   private[cli] def addArgument(arg: CliArgument[_]): Unit = {
     _arguments += arg
   }
 
-  private[this] var _options : Set[CliOption[_]] = Set.empty
+  private[this] var _options: Set[CliOption[_]] = Set.empty
   private[cli] def addOption(opt: CliOption[_]): Unit = {
     _options += opt
   }
 
-  private[this] var _validators : Set[Unit => Unit] = Set.empty
+  private[this] var _validators: Set[Unit => Unit] = Set.empty
 
-  def validate(validator : => Unit) : Unit = {
+  def validate(validator: => Unit): Unit = {
     _validators += { _ => validator }
   }
 
-  def validators : Set[Unit => Unit] = _validators
+  def validators: Set[Unit => Unit] = _validators
 
   private def applyValidators(): Unit = {
-    _validators.foreach( _.apply())
+    _validators.foreach(_.apply())
   }
 
-  def parsingError(msg: String) : Nothing = {
+  def parsingError(msg: String): Nothing = {
     throw new ParsingException(msg)
   }
 }

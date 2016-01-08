@@ -1,10 +1,10 @@
 package org.backuity.cli
 
 trait Exit {
-  def exit(code: Int) : Nothing
+  def exit(code: Int): Nothing
 }
 
-case class ExitException(code:Int) extends RuntimeException
+case class ExitException(code: Int) extends RuntimeException
 
 object Exit {
   implicit val system = new Exit {

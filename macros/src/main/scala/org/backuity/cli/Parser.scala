@@ -4,73 +4,73 @@ import org.backuity.cli.Formatting.ClassUtil
 
 class Parser(implicit console: Console, exit: Exit) {
   private var customProgramName: Option[String] = None
-  private var version : Option[String] = None
-  private var versionCmd : Option[String] = None
-  private var helpCmd : Option[String] = Some("help")
-  private var usage : Usage = Usage.Default
-  private var showUsageOnError : Boolean = true
-  private var exceptionOnError : Boolean = false
-  private val defaultExitCode : Int = 1
-  private var customExitCode : Option[Int] = None
+  private var version: Option[String] = None
+  private var versionCmd: Option[String] = None
+  private var helpCmd: Option[String] = Some("help")
+  private var usage: Usage = Usage.Default
+  private var showUsageOnError: Boolean = true
+  private var exceptionOnError: Boolean = false
+  private val defaultExitCode: Int = 1
+  private var customExitCode: Option[Int] = None
   private var args: List[String] = Nil
 
-  def version(version: String, command: String = "version") : Parser = {
+  def version(version: String, command: String = "version"): Parser = {
     this.version = Some(version)
     this.versionCmd = Some(command)
     this
   }
 
   /** Disable the help command. */
-  def noHelp() : Parser = {
+  def noHelp(): Parser = {
     this.helpCmd = None
     this
   }
 
-  def noUsageOnError() : Parser = {
+  def noUsageOnError(): Parser = {
     this.showUsageOnError = false
     this
   }
 
   /** Throws a `ParsingException` if the parser cannot parse the arguments. */
-  def throwExceptionOnError() : Parser = {
+  def throwExceptionOnError(): Parser = {
     this.exceptionOnError = true
     checkExceptionOnErrorAndExitCode()
     this
   }
 
   /**
-   * Define which code is used to exit the program if the parser is unabled to parse the arguments.
-   * This option cannot be used together with `noUsageOnError`.
-   */
+    * Define which code is used to exit the program if the parser is unabled to parse the arguments.
+    * This option cannot be used together with `noUsageOnError`.
+    */
   // TODO use a macro to enforce the exclusion with noUsageOnError?
-  def exitCode(code: Int) : Parser = {
+  def exitCode(code: Int): Parser = {
     this.customExitCode = Some(code)
     checkExceptionOnErrorAndExitCode()
     this
   }
 
   private def checkExceptionOnErrorAndExitCode(): Unit = {
-    if( exceptionOnError && customExitCode.isDefined ) {
+    if (exceptionOnError && customExitCode.isDefined) {
       sys.error("Cannot use both exit-code and throws-exception-on-error.")
     }
   }
 
-  def withProgramName(name: String) : Parser = {
+  def withProgramName(name: String): Parser = {
     this.customProgramName = Some(name)
     this
   }
 
-  def withHelpCommand(name: String) : Parser = {
+  def withHelpCommand(name: String): Parser = {
     this.helpCmd = Some(name)
     this
   }
 
-  def withUsage(usage: Usage) : Parser = {
+  def withUsage(usage: Usage): Parser = {
     this.usage = usage
     this
   }
 
-  def parse(args: Array[String]) : Parser = {
+  def parse(args: Array[String]): Parser = {
     this.args = args.toList
     this
   }
@@ -78,13 +78,13 @@ class Parser(implicit console: Console, exit: Exit) {
   // terminal methods, i.e that execute the parser
 
   /**
-   * @return None if version or help is executed
-   * @throws ParsingException if `noUsageOnError` is enabled
-   */
-  def withCommands[T <: Command : Manifest](withCommands : T*) : Option[T] = {
-    val commands = Commands(withCommands : _*)
+    * @return None if version or help is executed
+    * @throws ParsingException if `noUsageOnError` is enabled
+    */
+  def withCommands[T <: Command : Manifest](withCommands: T*): Option[T] = {
+    val commands = Commands(withCommands: _*)
 
-    if( parseVersion() || parseHelp(commands) ) {
+    if (parseVersion() || parseHelp(commands)) {
       None
     } else {
       withParsingException(commands) {
@@ -105,9 +105,9 @@ class Parser(implicit console: Console, exit: Exit) {
     }
   }
 
-  def withCommand[C <: Command : Manifest, R](command: C)(f : C => R = { a : C => () }): Option[R] = {
+  def withCommand[C <: Command : Manifest, R](command: C)(f: C => R = { a: C => () }): Option[R] = {
     val commands = Commands(command)
-    if( parseVersion() || parseHelp(commands) ) {
+    if (parseVersion() || parseHelp(commands)) {
       None
     } else {
       withParsingException(commands) {
@@ -121,44 +121,44 @@ class Parser(implicit console: Console, exit: Exit) {
     customProgramName.getOrElse(guessProgramName)
   }
 
-  private def guessProgramName : String = {
+  private def guessProgramName: String = {
     val stack = Thread.currentThread.getStackTrace
     val main = stack.last
     main.getClass.spinalCaseName
   }
 
-  private def parseVersion() : Boolean = {
+  private def parseVersion(): Boolean = {
     withFirstArg { case arg if versionCmd == Some(arg) =>
       console.println(version.get)
     }
   }
 
-  private def parseHelp(commands: Commands) : Boolean = {
+  private def parseHelp(commands: Commands): Boolean = {
     withFirstArg { case arg if helpCmd == Some(arg) =>
       console.println(usage.show(programName, commands))
     }
   }
 
-  private def withFirstArg(pf : PartialFunction[String,Unit]) : Boolean = {
+  private def withFirstArg(pf: PartialFunction[String, Unit]): Boolean = {
     args.headOption match {
       case Some(arg) if pf.isDefinedAt(arg) => pf(arg); true
       case _ => false
     }
   }
 
-  private def withParsingException[T](commands: Commands)(f : => T): T = {
+  private def withParsingException[T](commands: Commands)(f: => T): T = {
     try {
       f
     } catch {
-      case e : ParsingException => fail(Right(e), commands)
+      case e: ParsingException => fail(Right(e), commands)
     }
   }
 
-  private def fail(error: Either[String,ParsingException], commands: Commands): Nothing = {
-    if( showUsageOnError ) {
+  private def fail(error: Either[String, ParsingException], commands: Commands): Nothing = {
+    if (showUsageOnError) {
       console.println(usage.show(programName, commands))
     }
-    if( exceptionOnError ) {
+    if (exceptionOnError) {
       error match {
         case Left(msg) => throw ParsingException(msg)
         case Right(ex) => throw ex

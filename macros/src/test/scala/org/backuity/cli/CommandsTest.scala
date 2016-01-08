@@ -32,21 +32,22 @@ class CommandsTest extends JunitMatchers {
       "Commands must have at least one command")
   }
 
-  def option(name : String) : Matcher[CliOption[_]] = partialFunctionMatcher(s"option $name") {
+  def option(name: String): Matcher[CliOption[_]] = partialFunctionMatcher(s"option $name") {
     case opt => opt.name must_== name
   }
 }
 
 object CommandsTest {
 
-  trait GlobalOptions { this : Command =>
+  trait GlobalOptions { this: Command =>
     var opt1 = opt[Boolean]()
     var opt2 = opt[String](default = "pouette")
 
     var season = opt[Season](default = Season.WINTER)
   }
 
-  trait SomeCategoryOptions extends GlobalOptions { this : Command =>
+  trait SomeCategoryOptions extends GlobalOptions {
+    this: Command =>
     var optA = opt[Int](default = 1)
     var optB = opt[Boolean]()
   }
