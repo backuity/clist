@@ -13,7 +13,7 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def parseMultipleCommands(): Unit = {
-    Cli.parse(Array("--1", "--season=summer", "run","stuff", "--runSpecific=456", "-B")).withCommands(Run, Show) must_== Some(Run)
+    Cli.parse(Array("--1", "--season=summer", "run","stuff", "--run-specific=456", "-B")).withCommands(Run, Show) must_== Some(Run)
     Run.opt1 must beTrue
     Run.opt2 must_== "haha"
     Run.target must_== "stuff"

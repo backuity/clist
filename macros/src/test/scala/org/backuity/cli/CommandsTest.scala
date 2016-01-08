@@ -20,7 +20,7 @@ class CommandsTest extends JunitMatchers {
   @Test
   def singleCommandCommands(): Unit = {
     Commands(Run).options must contain(
-      option("runSpecific"),
+      option("run-specific"),
       option("opt1"),
       option("opt2"),
       option("season"))
