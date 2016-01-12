@@ -23,6 +23,11 @@ class ReadTest extends JunitMatchers {
   }
 
   @Test
+  def readTuple(): Unit = {
+    implicitly[Read[(String,Int)]].reads("john=28") must_== ("john", 28)
+  }
+
+  @Test
   def readSequence(): Unit = {
     implicitly[Read[Seq[String]]].reads("this\tand    that") must_== Seq("this", "and", "that")
     implicitly[Read[Seq[Int]]].reads("1 2    3") must_== Seq(1, 2, 3)

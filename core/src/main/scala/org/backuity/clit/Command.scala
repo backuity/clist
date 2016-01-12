@@ -11,8 +11,8 @@ abstract class Command(name: String = null, val description: String = "") extend
 
     var remainingArgs = args
 
-    parseArguments()
     parseOptions()
+    parseArguments()
     applyValidators()
 
     // ------------------------------------
@@ -30,30 +30,53 @@ abstract class Command(name: String = null, val description: String = "") extend
 
     def parseArguments(): Unit = {
       for (cmdArg <- arguments) {
-        popArg() match {
-          case None =>
-            cmdArg match {
-              case _: CliMandatoryArgument[_] =>
-                throw ParsingException("No argument provided for " + cmdArg.name)
-              case optArg: CliOptionalArgument[_] =>
-                setVar(cmdArg, optArg.default)
+        cmdArg match {
+          case sCmdArg: SingleCliArgument[_] =>
+            popArg() match {
+              case None =>
+                sCmdArg match {
+                  case _: CliMandatoryArgument[_] =>
+                    throw ParsingException("No argument provided for " + cmdArg.name)
+                  case optArg: CliOptionalArgument[_] =>
+                    setVar(cmdArg, optArg.default)
+                }
+
+              case Some(arg) =>
+                readAndSetVar(sCmdArg, arg)
             }
 
-          case Some(arg) =>
-            readAndSetVar(cmdArg, arg)
+          case mult: MultipleCliArgument[_] =>
+            if (remainingArgs.isEmpty) {
+              throw new ParsingException(s"Insufficient arguments for ${mult.name}")
+            } else {
+              try {
+                val value = mult.reader.reads(remainingArgs)
+                setVar(mult, value)
+                remainingArgs = Nil
+              } catch {
+                case ReadException(value, expected) =>
+                  throw new ParsingException(s"Incorrect parameter ${mult.name} '$value', expected $expected")
+              }
+            }
         }
+      }
+
+      if (hasArg) {
+        throw new ParsingException("Too many arguments: " + remainingArgs.mkString(", "))
       }
     }
 
     def parseOptions(): Unit = {
+      val argsToParse = remainingArgs.takeWhile(_.startsWith("-"))
       var processedOptions = Set.empty[CliOption[_]]
 
       def remainingOptions = options -- processedOptions
 
-      for (arg <- remainingArgs) {
+      for (arg <- argsToParse) {
         findOptionForArg(remainingOptions, arg) match {
           case None => throw ParsingException("No option found for " + arg)
           case Some((option, value)) =>
+            popArg()
             processedOptions += option
             readAndSetVar(option, value)
         }
@@ -70,12 +93,12 @@ abstract class Command(name: String = null, val description: String = "") extend
     */
   private def findOptionForArg(options: Set[CliOption[_]], arg: String): Option[(CliOption[_], String)] = {
     for (option <- options) {
-      option.abbrev.map { abbrev =>
+      option.abbrev.foreach { abbrev =>
         if (arg == ("-" + abbrev)) {
           return Some(option, "")
         }
       }
-      option.longName.map { longName =>
+      option.longName.foreach { longName =>
         if (arg == ("--" + longName)) {
           return Some(option, "")
         }
@@ -88,7 +111,7 @@ abstract class Command(name: String = null, val description: String = "") extend
     None
   }
 
-  private[this] def readAndSetVar(arg: CliAttribute[_], strValue: String): Unit = {
+  private[this] def readAndSetVar(arg: CliAttribute[_] with SingleArgAttribute[_], strValue: String): Unit = {
     try {
       val value = arg.reader.reads(strValue)
       setVar(arg, value)
@@ -115,9 +138,13 @@ abstract class Command(name: String = null, val description: String = "") extend
     getClass.spinalCaseName
   }
 
-  private[this] var _arguments: Set[CliArgument[_]] = Set.empty
-  private[clit] def addArgument(arg: CliArgument[_]): Unit = {
-    _arguments += arg
+  private[this] var _arguments: List[CliArgument[_]] = Nil
+
+  /**
+    * Add to the end of the argument list.
+    */
+  private[clit] def enqueueArgument(arg: CliArgument[_]): Unit = {
+    _arguments :+= arg
   }
 
   private[this] var _options: Set[CliOption[_]] = Set.empty
@@ -134,7 +161,7 @@ abstract class Command(name: String = null, val description: String = "") extend
   def validators: Set[Unit => Unit] = _validators
 
   private def applyValidators(): Unit = {
-    _validators.foreach(_.apply())
+    _validators.foreach(_.apply(()))
   }
 
   def parsingError(msg: String): Nothing = {

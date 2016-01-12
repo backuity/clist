@@ -27,20 +27,43 @@ class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
   }
 
   @Test
+  def parseMultiArgs(): Unit = {
+    Cli.parse(Array("-a", "arg1", "arg2")).withCommand(new MultiArgs) { cmd =>
+      cmd.names must_== Seq("arg1", "arg2")
+      cmd.a must beTrue
+    }
+  }
+
+  @Test
+  def parseMultiArgAttributes(): Unit = {
+    Cli.parse(Array("one", "two", "3")).withCommand(new MultiArgAttributes) { cmd =>
+      cmd.argOne must_== "one"
+      cmd.arg2 must_== "two"
+      cmd.other must_== 3
+    }
+  }
+
+  @Test
+  def failMissingMultipleArgs(): Unit = {
+    Cli.parse(Array()).throwExceptionOnError().withCommand(new MultiArgs)() must throwA[ParsingException].withMessage(
+      "Insufficient arguments for names")
+  }
+
+  @Test
   def parseCommandMustSetDefaults(): Unit = {
-    Cli.parse(Array("sun", "--1")).withCommand(new RunWithOption) { run =>
+    Cli.parse(Array("--1", "sun")).withCommand(new RunWithOption) { run =>
       run.target must_== "sun"
       run.opt1 must_== true
       run.opt2 must_== "haha"
     }
 
-    Cli.parse(Array("sea", "--opt2=another")).withCommand(new RunWithOption) { run =>
+    Cli.parse(Array("--opt2=another", "sea")).withCommand(new RunWithOption) { run =>
       run.target must_== "sea"
       run.opt1 must_== false
       run.opt2 must_== "another"
     }
 
-    Cli.parse(Array("sea", "--opt2=toto", "--1")).withCommand(new RunWithOption) { run =>
+    Cli.parse(Array("--opt2=toto", "--1", "sea")).withCommand(new RunWithOption) { run =>
       run.target must_== "sea"
       run.opt1 must_== true
       run.opt2 must_== "toto"
@@ -57,17 +80,17 @@ class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
   def parseStaticCommandMustResetDefaults(): Unit = {
     object StaticRun extends RunWithOption
 
-    Cli.parse(Array("sun", "--1")).withCommand(StaticRun)()
+    Cli.parse(Array("--1", "sun")).withCommand(StaticRun)()
     StaticRun.target must_== "sun"
     StaticRun.opt1 must_== true
     StaticRun.opt2 must_== "haha"
 
-    Cli.parse(Array("sea", "--opt2=another")).withCommand(StaticRun)()
+    Cli.parse(Array("--opt2=another", "sea")).withCommand(StaticRun)()
     StaticRun.target must_== "sea"
     StaticRun.opt1 must_== false
     StaticRun.opt2 must_== "another"
 
-    Cli.parse(Array("sea", "--opt2=toto", "--1")).withCommand(StaticRun)()
+    Cli.parse(Array("--opt2=toto", "--1", "sea")).withCommand(StaticRun)()
     StaticRun.target must_== "sea"
     StaticRun.opt1 must_== true
     StaticRun.opt2 must_== "toto"
@@ -108,7 +131,7 @@ class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def incorrectCommandOption(): Unit = {
-    Cli.parse(Array("target", "--unknown-option")).withCommand(new Run)() must exitWithCode(1)
+    Cli.parse(Array("--unknown-option", "target")).withCommand(new Run)() must exitWithCode(1)
     console.content must_== (Usage.Default.show("x",Commands(new Run)) + crlf +
       "No option found for --unknown-option" + crlf)
   }
@@ -134,5 +157,16 @@ object SingleCommandParsingTest {
   class RunWithAbbrev extends Command {
     var opt1 = opt[Boolean](abbrev = "o")
     var a = opt[Boolean](abbrevOnly = "a")
+  }
+
+  class MultiArgs extends Command {
+    var names = args[Seq[String]]()
+    var a = opt[Boolean](abbrev = "a")
+  }
+
+  class MultiArgAttributes extends Command {
+    var argOne = arg[String]()
+    var arg2 = arg[String]()
+    var other = arg[Int]()
   }
 }

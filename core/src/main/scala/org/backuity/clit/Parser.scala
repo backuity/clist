@@ -68,6 +68,8 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
     }
   }
 
+  /** Set the program name that is displayed in
+    * the usage for multi-command CLI. */
   def withProgramName(name: String): Parser = {
     this.customProgramName = Some(name)
     this
@@ -111,7 +113,7 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
             commands.findByName(cmdName) match {
               case None => throw ParsingException(s"Unknown command '$cmdName'")
               case Some(cmd) =>
-                cmd.read(params ::: globalOptions)
+                cmd.read(globalOptions ::: params)
                 Some(cmd.asInstanceOf[T])
             }
         }

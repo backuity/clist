@@ -28,6 +28,14 @@ object Usage {
       } else ""
     }
 
+    def showArg(arg: CliArgument[_]): String = {
+      val multipleSuffix = arg match {
+        case _: SingleCliArgument[_] => ""
+        case _: MultipleCliArgument[_] => " ..."
+      }
+      s"<${arg.name}>$multipleSuffix"
+    }
+
     val indentString = "   "
 
     override def show(programName: String, commands: Commands): String = {
@@ -92,11 +100,11 @@ object Usage {
         add(ansi"%bold{${command.label}}")
         val description = if (command.description != "") " : " + command.description else ""
 
-        if (command.arguments.nonEmpty) {
-          add(" " + command.arguments.map(arg => s"<${arg.name}>").mkString(" "))
-        }
         if (commandSpecificOpts.nonEmpty) {
           add(ansi" %yellow{[$optionLabel]}")
+        }
+        if (command.arguments.nonEmpty) {
+          add(" " + command.arguments.map(showArg).mkString(" "))
         }
         addLine(description)
       }

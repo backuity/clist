@@ -30,7 +30,7 @@ class UsageTest extends JunitMatchers {
             |      %yellow{--A=NUM}
             |      %yellow{--opt-b} : some flag
             |
-            |   %bold{run} <target> %yellow{[command options]} : run run baby run
+            |   %bold{run} %yellow{[command options]} <target> : run run baby run
             |      %yellow{--A=NUM}
             |      %yellow{--opt-b}            : some flag
             |      %yellow{--run-specific=NUM}
@@ -42,7 +42,7 @@ class UsageTest extends JunitMatchers {
     Usage.Default.show("program-name", Commands(Run)) must_==
       ansi"""%underline{Usage}
             |
-            | %bold{run} <target> %yellow{[options]} : run run baby run
+            | %bold{run} %yellow{[options]} <target> : run run baby run
             |
             |%underline{Options}
             |

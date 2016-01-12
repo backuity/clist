@@ -12,28 +12,41 @@ sealed abstract class CliAttribute[T] {
   val commandAttributeName: String
 
   val description: Option[String]
+}
+
+trait SingleArgAttribute[T] { this: CliAttribute[T] =>
   val reader: Read[T]
 }
 
 /**
   * An argument is a value directly passed to a command. It may be optional.
   */
-abstract class CliArgument[T] extends CliAttribute[T]
+abstract sealed class CliArgument[T] extends CliAttribute[T]
+
+trait SingleCliArgument[T] extends CliArgument[T] with SingleArgAttribute[T]
 
 case class CliOptionalArgument[T](tpe: Class[T],
                                   commandAttributeName: String,
                                   name: String,
                                   description: Option[String],
                                   default: T)
-                                 (val reader: Read[T]) extends CliArgument[T] {
+                                 (val reader: Read[T]) extends SingleCliArgument[T] {
 }
 
 case class CliMandatoryArgument[T](tpe: Class[T],
                                    commandAttributeName: String,
                                    name: String,
                                    description: Option[String])
-                                  (val reader: Read[T]) extends CliArgument[T] {
+                                  (val reader: Read[T]) extends SingleCliArgument[T] {
 }
+
+case class MultipleCliArgument[T](tpe: Class[T],
+                                  commandAttributeName: String,
+                                  name: String,
+                                  description: Option[String])
+                                 (val reader: ReadMultiple[T]) extends CliArgument[T] {
+}
+
 
 /**
   * As opposed to an argument an option is always optional.
@@ -43,7 +56,7 @@ case class CliOption[T](tpe: Class[T],
                         longName: Option[String],
                         description: Option[String],
                         abbrev: Option[String],
-                        default: T)(val reader: Read[T]) extends CliAttribute[T] {
+                        default: T)(val reader: Read[T]) extends CliAttribute[T] with SingleArgAttribute[T] {
 
   val name = longName.getOrElse(abbrev.get)
 }
@@ -55,7 +68,7 @@ object CliAttribute {
     val clazz: Class[_] = manifest[T].runtimeClass
 
     def fail(msg: String) {
-      throw new IllegalArgumentException(s"Incorrect argument $varName: $msg")
+      throw new IllegalArgumentException(s"Incorrect argument '$varName': $msg")
     }
 
     def validateDefault(default: T): T = {
@@ -156,11 +169,11 @@ object CliArgument {
 
       if (required) {
 
-        if (default != null && clazz != classOf[Boolean]) {
-          fail("a required argument will ignore its default value")
+        if (default != null && classOf[AnyVal].isAssignableFrom(clazz)) {
+          fail("cannot specify a default value for a required argument")
         }
 
-        command.addArgument(CliMandatoryArgument(
+        command.enqueueArgument(CliMandatoryArgument(
           tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
           commandAttributeName = varName,
           name                 = Option(name).getOrElse(varName.trim),
@@ -169,7 +182,7 @@ object CliArgument {
 
         val nonNullDefault = validateDefault(default)
 
-        command.addArgument(CliOptionalArgument(
+        command.enqueueArgument(CliOptionalArgument(
           tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
           commandAttributeName = varName,
           name                 = Option(name).getOrElse(varName.trim),
@@ -178,6 +191,29 @@ object CliArgument {
       }
 
       default
+    }
+  }
+}
+
+object MultipleCliArgument {
+  class Builder[T: ReadMultiple : Manifest](command: Command, varName: String) {
+
+    /**
+      * - unless it is a boolean, an optional argument must have a default value
+      * - a boolean cannot have a default value (we want to avoid a boolean being true
+      * by default.. it would always be true)
+      */
+    def apply[U <: T](name: String = null,
+                      description: String = null): T = {
+
+      command.enqueueArgument(MultipleCliArgument(
+        tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
+        commandAttributeName = varName,
+        name                 = Option(name).getOrElse(varName.trim),
+        description          = Option(description))(
+        implicitly[ReadMultiple[T]]))
+
+      null.asInstanceOf[T]
     }
   }
 }
