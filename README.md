@@ -29,8 +29,8 @@ If you are looking for an immutable CLI library you should take a look at projec
 First let's configure our SBT build
 ```scala
 libraryDependencies ++= Seq(
-   "org.backuity.clit" %% "clit-core"   % "1.0.0",
-   "org.backuity.clit" %% "clit-macros" % "1.0.0" % "provided")
+   "org.backuity.clit" %% "clit-core"   % "2.0.0",
+   "org.backuity.clit" %% "clit-macros" % "2.0.0" % "provided")
 ```
 
 Then define a command:
