@@ -4,7 +4,7 @@ import org.backuity.clit._
 
 object CatDemo {
 
-  object Cat extends Command(description = "concatenate files and print on the standard output") {
+  class Cat extends Command(description = "concatenate files and print on the standard output") {
 
     var files = args[Seq[File]](description = "files to concat")
 
@@ -15,9 +15,8 @@ object CatDemo {
   def main(args: Array[String]) {
     Cli.parse(args)
       .version("1.2")
-      .withCommand(Cat) {
-        case Cat =>
-          println(Cat.files)
+      .withCommand(new Cat) { case cat =>
+          println(cat.files)
       }
   }
 }

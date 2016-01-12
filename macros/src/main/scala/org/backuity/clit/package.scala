@@ -41,7 +41,7 @@ package object clit {
     q"""new _root_.org.backuity.clit.CliArgument.Builder(this, ${term.name.toString.trim})"""
   }
 
-  // TODO make sure there's at most one args
+  // TODO make sure there's at most one args and it comes last (if multiple `arg` are specified)
   def args_impl[T: c.WeakTypeTag](c: blackbox.Context) = {
     import c.universe._
     val term = checkTerm(c)
