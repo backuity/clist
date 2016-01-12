@@ -48,6 +48,10 @@ object Read {
     }
   }
 
+  implicit def seqRead[T](implicit readT: Read[T]): Read[Seq[T]] = reads { str =>
+    str.split("\\p{Blank}+").map { readT.reads }
+  }
+
   implicit val yyyymmdddRead: Read[Calendar] = calendarRead("yyyy-MM-dd")
 
   def calendarRead(pattern: String): Read[Calendar] = calendarRead(pattern, Locale.getDefault)
