@@ -1,4 +1,4 @@
-# Command Line Interface Scala Toolkit [![Build Status](https://travis-ci.org/backuity/clist.png?branch=master)](https://travis-ci.org/backuity/clist)
+# Command Line Interface Scala Toolkit [![Build Status](https://travis-ci.org/backuity/clist.png?branch=master)](https://travis-ci.org/backuity/clist) [<img src="https://img.shields.io/maven-central/v/org.backuity.clist/clist-core_2.11*.svg?label=latest%20release%20for%202.11"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3Aorg.backuity.clist%20a%3Aclist-core_2.11*)
 
 The Backuity CLIST is a scala-only (2.11+) library for quickly building beautiful type-safe modular and reusable mutable CLIs.
 
@@ -29,8 +29,8 @@ If you are looking for an immutable CLI library you should take a look at projec
 First let's configure our SBT build
 ```scala
 libraryDependencies ++= Seq(
-   "org.backuity.clist" %% "clist-core"   % "2.0.0",
-   "org.backuity.clist" %% "clist-macros" % "2.0.0" % "provided")
+   "org.backuity.clist" %% "clist-core"   % "2.0.1",
+   "org.backuity.clist" %% "clist-macros" % "2.0.1" % "provided")
 ```
 
 Then define a command:
