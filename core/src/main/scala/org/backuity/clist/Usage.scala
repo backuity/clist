@@ -10,33 +10,7 @@ object Usage {
 
     import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
-    def showDefault(t: Any): String = {
-      if (t.getClass.isEnum) {
-        t.toString.toLowerCase
-      } else {
-        t.toString
-      }
-    }
-
-    def showValuesFor(clazz: Class[_]): String = {
-      if (clazz == classOf[Int] || clazz == classOf[Long]) {
-        "=NUM"
-      } else if (clazz == classOf[String]) {
-        "=STRING"
-      } else if (clazz.isEnum) {
-        "=" + clazz.getEnumConstants.map(_.toString.toLowerCase).mkString("|")
-      } else ""
-    }
-
-    def showArg(arg: CliArgument[_]): String = {
-      val multipleSuffix = arg match {
-        case _: SingleCliArgument[_] => ""
-        case _: MultipleCliArgument[_] => " ..."
-      }
-      s"<${arg.name}>$multipleSuffix"
-    }
-
-    val indentString = "   "
+    private val indentString = "   "
 
     override def show(programName: String, commands: Commands): String = {
 
@@ -44,11 +18,11 @@ object Usage {
       var indentLevel = 0
       var beginning = true
 
-      def incIndent(): Unit = { indentLevel += 1 }
-      def decIndent(): Unit = { indentLevel -= 1 }
-      def indent(f: => Unit): Unit = { incIndent(); f; decIndent() }
+      @inline def incIndent(): Unit = { indentLevel += 1 }
+      @inline def decIndent(): Unit = { indentLevel -= 1 }
+      @inline def indent(f: => Unit): Unit = { incIndent(); f; decIndent() }
 
-      def addLine(str: String = ""): Unit = { add(str + "\n") }
+      @inline def addLine(str: String = ""): Unit = { add(str + "\n") }
       def add(str: String): Unit = {
         if (str.trim.isEmpty) {
           // do not pad for nothing
@@ -64,34 +38,6 @@ object Usage {
         } else {
           beginning = false
         }
-      }
-
-      def optLabel(arg: CliOption[_]): String = {
-        (arg.abbrev match {
-          case Some(abbrev) => "-" + abbrev + (if (arg.longName.isDefined) ", " else "")
-          case None => ""
-        }) + (arg.longName match {
-          case Some(name) => "--" + name + showValuesFor(arg.tpe)
-          case None => ""
-        })
-      }
-
-      def optText(labelMaxSize: Int, arg: CliOption[_]): String = {
-        val label = optLabel(arg)
-        val description = arg.description.getOrElse("")
-        val default = arg.default match {
-          case Some(d) if d != false => ansi"%italic{(default: ${showDefault(d)})}"
-          case _ => ""
-        }
-        val padding = " " * (labelMaxSize - label.length)
-        val lineBreakPadding = " " * (labelMaxSize + 3 /* 3 = " : " */)
-        val indentedDescription = description.replaceAll("\n", "\n" + lineBreakPadding)
-
-        ansi"%yellow{$label}" + (if (description.isEmpty && default.isEmpty) {
-          ""
-        } else {
-          padding + " : " + indentedDescription + (if (!description.isEmpty && !default.isEmpty) " " else "") + default
-        })
       }
 
       def addCommandSynopsis(command: Command,
@@ -162,6 +108,60 @@ object Usage {
         }
       }
       usage.toString
+    }
+
+    private def optText(labelMaxSize: Int, arg: CliOption[_]): String = {
+      val label = optLabel(arg)
+      val description = arg.description.getOrElse("")
+      val default = arg.default match {
+        case Some(d) if d != false => ansi"%italic{(default: ${showDefault(d)})}"
+        case _ => ""
+      }
+      val padding = " " * (labelMaxSize - label.length)
+      val lineBreakPadding = " " * (labelMaxSize + 3 /* 3 = " : " */)
+      val indentedDescription = description.replaceAll("\n", "\n" + lineBreakPadding)
+
+      ansi"%yellow{$label}" + (if (description.isEmpty && default.isEmpty) {
+        ""
+      } else {
+        padding + " : " + indentedDescription + (if (!description.isEmpty && !default.isEmpty) " " else "") + default
+      })
+    }
+
+    private def optLabel(arg: CliOption[_]): String = {
+      (arg.abbrev match {
+        case Some(abbrev) => "-" + abbrev + (if (arg.longName.isDefined) ", " else "")
+        case None => ""
+      }) + (arg.longName match {
+        case Some(name) => "--" + name + showValuesFor(arg.tpe)
+        case None => ""
+      })
+    }
+
+    private def showDefault(t: Any): String = {
+      if (t.getClass.isEnum) {
+        t.toString.toLowerCase
+      } else {
+        t.toString
+      }
+    }
+
+    private def showValuesFor(clazz: Class[_]): String = {
+      if (clazz == classOf[Int] || clazz == classOf[Long]) {
+        "=NUM"
+      } else if (clazz == classOf[String]) {
+        "=STRING"
+      } else if (clazz.isEnum) {
+        "=" + clazz.getEnumConstants.map(_.toString.toLowerCase).mkString("|")
+      } else ""
+    }
+
+    private def showArg(arg: CliArgument[_]): String = {
+      val multipleSuffix = arg match {
+        case _: SingleCliArgument[_] => ""
+        case _: MultipleCliArgument[_] => " ..."
+      }
+      s"<${arg.name}>$multipleSuffix"
     }
   }
 }
