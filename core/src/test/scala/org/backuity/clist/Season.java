@@ -1,4 +1,4 @@
-package org.backuity.clit;
+package org.backuity.clist;
 
 public enum Season {
   WINTER, SPRING, SUMMER, AUTUMN

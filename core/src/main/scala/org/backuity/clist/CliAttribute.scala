@@ -1,6 +1,6 @@
-package org.backuity.clit
+package org.backuity.clist
 
-import org.backuity.clit.Formatting.StringUtil
+import org.backuity.clist.Formatting.StringUtil
 
 sealed abstract class CliAttribute[T] {
   val tpe: Class[T]

@@ -1,4 +1,4 @@
-package org.backuity.clit
+package org.backuity.clist
 
 trait Exit {
   def exit(code: Int): Nothing

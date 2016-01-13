@@ -1,6 +1,6 @@
-# Command Line Interface Toolkit [![Build Status](https://travis-ci.org/backuity/clit.png?branch=master)](https://travis-ci.org/backuity/clit)
+# Command Line Interface Scala Toolkit [![Build Status](https://travis-ci.org/backuity/clit.png?branch=master)](https://travis-ci.org/backuity/clit)
 
-The Backuity CLIT is a scala-only (2.11+) library for quickly building beautiful type-safe modular and reusable mutable CLIs.
+The Backuity CLIST is a scala-only (2.11+) library for quickly building beautiful type-safe modular and reusable mutable CLIs.
 
 - [You said beautiful](#you-said-beautiful)
 - [Why mutable?](#why-mutable)
@@ -29,13 +29,13 @@ If you are looking for an immutable CLI library you should take a look at projec
 First let's configure our SBT build
 ```scala
 libraryDependencies ++= Seq(
-   "org.backuity.clit" %% "clit-core"   % "2.0.0",
-   "org.backuity.clit" %% "clit-macros" % "2.0.0" % "provided")
+   "org.backuity.clist" %% "clist-core"   % "2.0.0",
+   "org.backuity.clist" %% "clist-macros" % "2.0.0" % "provided")
 ```
 
 Then define a command:
 ```scala
-  import org.backuity.clit._
+  import org.backuity.clist._
 
   class Cat extends Command(description = "concatenate files and print on the standard output") {
 

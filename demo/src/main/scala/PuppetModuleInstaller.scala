@@ -1,4 +1,4 @@
-import org.backuity.clit._
+import org.backuity.clist._
 
 object PuppetModuleInstaller {
 

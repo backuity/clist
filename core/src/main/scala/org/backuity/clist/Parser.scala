@@ -1,7 +1,7 @@
-package org.backuity.clit
+package org.backuity.clist
 
 import org.backuity.ansi.AnsiFormatter.FormattedHelper
-import org.backuity.clit.Formatting.ClassUtil
+import org.backuity.clist.Formatting.ClassUtil
 
 class Parser(args: List[String])(implicit console: Console, exit: Exit) {
   private var customProgramName: Option[String] = None

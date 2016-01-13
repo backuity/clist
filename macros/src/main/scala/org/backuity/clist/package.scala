@@ -3,7 +3,7 @@ package org.backuity
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-package object clit {
+package object clist {
   /**
     * Define an attribute of a [[Command]] to be a command line argument.
     *
@@ -38,20 +38,20 @@ package object clit {
   def arg_impl[T: c.WeakTypeTag](c: blackbox.Context) = {
     import c.universe._
     val term = checkTerm(c)
-    q"""new _root_.org.backuity.clit.CliArgument.Builder(this, ${term.name.toString.trim})"""
+    q"""new _root_.org.backuity.clist.CliArgument.Builder(this, ${term.name.toString.trim})"""
   }
 
   // TODO make sure there's at most one args and it comes last (if multiple `arg` are specified)
   def args_impl[T: c.WeakTypeTag](c: blackbox.Context) = {
     import c.universe._
     val term = checkTerm(c)
-    q"""new _root_.org.backuity.clit.MultipleCliArgument.Builder(this, ${term.name.toString.trim})"""
+    q"""new _root_.org.backuity.clist.MultipleCliArgument.Builder(this, ${term.name.toString.trim})"""
   }
 
   def opt_impl[T: c.WeakTypeTag](c: blackbox.Context) = {
     import c.universe._
     val term = checkTerm(c)
-    q"""new _root_.org.backuity.clit.CliOption.Builder(this, ${term.name.toString.trim})"""
+    q"""new _root_.org.backuity.clist.CliOption.Builder(this, ${term.name.toString.trim})"""
   }
 
   private def checkTerm[T: c.WeakTypeTag](c: blackbox.Context): c.universe.TermSymbol = {

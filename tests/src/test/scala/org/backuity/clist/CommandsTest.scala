@@ -1,4 +1,4 @@
-package org.backuity.clit
+package org.backuity.clist
 
 import org.backuity.matchete.{JunitMatchers, Matcher}
 import org.junit.Test

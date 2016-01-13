@@ -1,5 +1,5 @@
 lazy val commonSettings = Seq(
-  organization := "org.backuity.clit",
+  organization := "org.backuity.clist",
   scalaVersion := "2.11.6",
   version := "2.0.0",
 
@@ -13,7 +13,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val releaseSettings = commonSettings ++ Seq(
-  homepage := Some(url("https://github.com/backuity/clit")),
+  homepage := Some(url("https://github.com/backuity/clist")),
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
 
   publishMavenStyle := true,
@@ -33,8 +33,8 @@ lazy val releaseSettings = commonSettings ++ Seq(
 
   pomExtra :=
     <scm>
-      <url>git@github.com:backuity/clit.git</url>
-      <connection>scm:git:git@github.com:backuity/clit.git</connection>
+      <url>git@github.com:backuity/clist.git</url>
+      <connection>scm:git:git@github.com:backuity/clist.git</connection>
     </scm>
       <developers>
         <developer>
@@ -69,13 +69,13 @@ lazy val root = project.in(file(".")).
 lazy val core = project.in(file("core")).
   settings(releaseSettings: _*).
   settings(
-    name := "clit-core",
+    name := "clist-core",
     libraryDependencies ++= matchete :+ ansi :+ mockito)
 
 lazy val macros = project.in(file("macros")).
   settings(releaseSettings: _*).
   settings(
-    name := "clit-macros",
+    name := "clist-macros",
     libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value).
   dependsOn(core)
 

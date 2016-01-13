@@ -1,4 +1,4 @@
-package org.backuity.clit
+package org.backuity.clist
 
 /**
   * @param commands a non-empty set of commands

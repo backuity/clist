@@ -1,6 +1,6 @@
-package org.backuity.clit
+package org.backuity.clist
 
-import org.backuity.clit.Formatting.ClassUtil
+import org.backuity.clist.Formatting.ClassUtil
 
 
 /** @param name if not specified the lower-cased class name will be used */
@@ -143,12 +143,12 @@ abstract class Command(name: String = null, val description: String = "") extend
   /**
     * Add to the end of the argument list.
     */
-  private[clit] def enqueueArgument(arg: CliArgument[_]): Unit = {
+  private[clist] def enqueueArgument(arg: CliArgument[_]): Unit = {
     _arguments :+= arg
   }
 
   private[this] var _options: Set[CliOption[_]] = Set.empty
-  private[clit] def addOption(opt: CliOption[_]): Unit = {
+  private[clist] def addOption(opt: CliOption[_]): Unit = {
     _options += opt
   }
 
