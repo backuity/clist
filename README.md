@@ -1,4 +1,4 @@
-# Command Line Interface Scala Toolkit [![Build Status](https://travis-ci.org/backuity/clit.png?branch=master)](https://travis-ci.org/backuity/clit)
+# Command Line Interface Scala Toolkit [![Build Status](https://travis-ci.org/backuity/clist.png?branch=master)](https://travis-ci.org/backuity/clist)
 
 The Backuity CLIST is a scala-only (2.11+) library for quickly building beautiful type-safe modular and reusable mutable CLIs.
 
