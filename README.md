@@ -122,7 +122,7 @@ Cli.parse(args).withProgramName("my-cli").withCommands(Run, Show)
 
 It is entirely possible (and encouraged) to factorize options into traits and compose Commands with them:
 ```scala
-trait Common {
+trait Common { this: Command =>
    var verbose = opt[Boolean](abbrev = "v")
 }
 
@@ -135,7 +135,7 @@ val res = Cli.parse(args).withCommands(Run, Show)
 
 You can also seal your command hierarchy to allow exhaustive pattern matching checks:
 ```scala
-sealed trait Common { // same as above
+sealed trait Common { this: Command => // same as above
 }
 
 Cli.parse(args).withCommands(Run, Show) match {
@@ -149,7 +149,7 @@ Cli.parse(args).withCommands(Run, Show) match {
 
 Depending on your taste, you might want to define the behavior of your commands within them:
 ```scala
-sealed trait Common {
+sealed trait Common { this: Command =>
    var verbose = opt[Boolean](abbrev = "v")
    def run(): Unit
 }
