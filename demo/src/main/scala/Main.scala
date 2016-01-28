@@ -3,9 +3,9 @@ import org.backuity.clist._
 object Main {
 
   // this lets you be exhaustive when matching on the command return
-  sealed trait MyCommand { this : Command => }
+  sealed trait MyCommand extends Command
 
-  trait GlobalOptions { this : Command =>
+  trait GlobalOptions { this: Command =>
     var opt1 = opt[Boolean](name = "1",
                            description = "This is a wonderful command")
     var opt2 = opt[String](description = "Man you should try this one",
@@ -14,7 +14,7 @@ object Main {
     var season = opt[Season](default = Season.WINTER)
   }
   
-  trait SomeCategoryOptions extends GlobalOptions { this : Command =>
+  trait SomeCategoryOptions extends GlobalOptions { this: Command =>
     var optA = opt[Int](name = "A", default = 1)
     var optB = opt[Boolean](description = "some flag")
   }

@@ -12,6 +12,7 @@ The Backuity CLIST is a scala-only (2.11+) library for quickly building beautifu
 - [Multiple Commands](#multiple-commands)
   - [Composition: grouping Options into Traits](#composition-grouping-options-into-traits)
   - [Adding behavior to Commands](#adding-behavior-to-commands)
+- [Licence & Contribution](#licence--contribution)
 
 ## You said beautiful?
 
@@ -168,3 +169,10 @@ object Show extends Command with Common {
 
 Cli.parse(args).withCommands(Run, Show).foreach(_.run())
 ```
+
+## Licence & Contribution
+
+The code is published under the Apache 2.0 licence.
+
+You're welcome to fork and submit PRs, and if you like the project you can up-vote the related
+[StackOverflow answer](http://stackoverflow.com/questions/2315912/scala-best-way-to-parse-command-line-parameters-cli/34748336#34748336).
