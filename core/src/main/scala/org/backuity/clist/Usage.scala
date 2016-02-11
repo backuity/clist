@@ -157,13 +157,10 @@ object Usage {
     }
 
     private def showArg(arg: CliArgument[_]): String = {
-      val multipleSuffix = arg match {
-        case _: SingleCliArgument[_] => ""
-        case _: MultipleCliArgument[_] => " ..."
-      }
       arg match {
-        case _: CliMandatoryArgument[_] => s"<${arg.name}>$multipleSuffix"
-        case _: CliOptionalArgument[_] =>  s"[<${arg.name}>]$multipleSuffix"
+        case _: CliMandatoryArgument[_] => s"<${arg.name}>"
+        case _: CliOptionalArgument[_] =>  s"[<${arg.name}>]"
+        case _: MultipleCliArgument[_] =>  s"<${arg.name}> ..."
       }
     }
   }
