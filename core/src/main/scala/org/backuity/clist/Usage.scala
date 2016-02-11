@@ -161,7 +161,10 @@ object Usage {
         case _: SingleCliArgument[_] => ""
         case _: MultipleCliArgument[_] => " ..."
       }
-      s"<${arg.name}>$multipleSuffix"
+      arg match {
+        case _: CliMandatoryArgument[_] => s"<${arg.name}>$multipleSuffix"
+        case _: CliOptionalArgument[_] =>  s"[<${arg.name}>]$multipleSuffix"
+      }
     }
   }
 }

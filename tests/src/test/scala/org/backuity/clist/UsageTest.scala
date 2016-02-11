@@ -30,7 +30,7 @@ class UsageTest extends JunitMatchers {
             |      %yellow{--A=NUM}
             |      %yellow{--opt-b} : some flag
             |
-            |   %bold{run} %yellow{[command options]} <target> : run run baby run
+            |   %bold{run} %yellow{[command options]} <target> [<optArg>] : run run baby run
             |      %yellow{--A=NUM}
             |      %yellow{--opt-b}            : some flag
             |      %yellow{--run-specific=NUM}
@@ -42,7 +42,7 @@ class UsageTest extends JunitMatchers {
     Usage.Default.show("program-name", Commands(Run)) must_==
       ansi"""%underline{Usage}
             |
-            | %bold{run} %yellow{[options]} <target> : run run baby run
+            | %bold{run} %yellow{[options]} <target> [<optArg>] : run run baby run
             |
             |%underline{Options}
             |
@@ -85,6 +85,7 @@ object UsageTest {
 
     object Run extends Command(description = "run run baby run") with SomeCategoryOptions {
         var target = arg[String]()
+        var optArg = arg[Long](default = 42L, required = false)
 
         var runSpecific = opt[Long](default = 123L)
     }
