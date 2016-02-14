@@ -23,7 +23,7 @@ trait SingleArgAttribute[T] { this: CliAttribute[T] =>
   */
 abstract sealed class CliArgument[T] extends CliAttribute[T]
 
-trait SingleCliArgument[T] extends CliArgument[T] with SingleArgAttribute[T]
+sealed trait SingleCliArgument[T] extends CliArgument[T] with SingleArgAttribute[T]
 
 case class CliOptionalArgument[T](tpe: Class[T],
                                   commandAttributeName: String,

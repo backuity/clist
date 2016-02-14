@@ -36,6 +36,7 @@ libraryDependencies ++= Seq(
 
 Then define a command:
 ```scala
+
   import org.backuity.clist._
 
   class Cat extends Command(description = "concatenate files and print on the standard output") {
@@ -47,6 +48,9 @@ Then define a command:
 
     // an abbreviated form can be added, so that this option can be triggered both by `--number-nonblank` or `-b`
     var numberNonblank = opt[Boolean](abbrev = "b", description = "number nonempty output lines, overrides -n")
+
+    // default values can be provided
+    var maxLines       = opt[Int](default = 123)
 
     var files          = args[Seq[File]](description = "files to concat")
   }
@@ -78,13 +82,45 @@ adding them to the implicit scope.
 `Read` (used by `opt` and `arg`) parses a String into a type `T`,
 whereas `ReadMultiple` (used by `args`) takes a __list__ of string to produce a type `U`.
 
-Note that on the command there is a distinction between
+The following types are supported out-of-the-box:
+  - String
+  - Int, Long, Double
+  - BigInt, BigDecimal
+  - java.util.Calendar (in the `yyyy-MM-dd` format)
+  - java.io.File
+  - java.net.URI
+  - Tuple2
+  - java enums
+
+Note that on the command line there is a distinction between
 ```
 cat file1 file2 "file with space"
 ```
 and
 ```
 cat file1 file2 file with space
+```
+
+### Example
+
+```
+var maxDelay = opt[Long](default = 3000L)
+var maxError = opt[Double](default = 3.24)
+```
+
+Or if you need to customize that parsing:
+
+```
+object Person extends Command {
+  var name = arg[Name]()
+}
+
+case class Name(firstName: String, lastName: String)
+
+implicit val nameRead = Read.reads[Name] { str =>
+  val Array(first,last) = str.split("\\.")
+  Name(first,last)
+}
 ```
 
 ## Exit code vs Exception

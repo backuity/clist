@@ -31,9 +31,20 @@ object Main {
 
   object Test extends Command with SomeCategoryOptions with MyCommand
 
+  object Person extends MyCommand {
+    var name = arg[Name]()
+  }
+
+  case class Name(firstName: String, lastName: String)
+
+  implicit val nameRead = Read.reads[Name] { str =>
+    val Array(first,last) = str.split("\\.")
+    Name(first,last)
+  }
+
   def main(args: Array[String]) {
 
-    Cli.parse(args).version("1.2.3").withCommands(Run, Show, Test) match {
+    Cli.parse(args).version("1.2.3").withCommands(Run, Show, Test, Person) match {
       case Some(Run) =>
         println("Executed Run command:")
         println("\t- target : " + Run.target)
@@ -46,6 +57,9 @@ object Main {
 
       case Some(Test) =>
         println("test")
+
+      case Some(Person) =>
+        println(Person.name)
 
       case None =>
         println("nothing done")
