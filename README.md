@@ -103,14 +103,14 @@ cat file1 file2 file with space
 
 ### Example
 
-```
+```scala
 var maxDelay = opt[Long](default = 3000L)
 var maxError = opt[Double](default = 3.24)
 ```
 
 Or if you need to customize that parsing:
 
-```
+```scala
 object Person extends Command {
   var name = arg[Name]()
 }
