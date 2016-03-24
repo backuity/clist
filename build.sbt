@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   organization := "org.backuity.clist",
-  scalaVersion := "2.11.6",
+  scalaVersion := "2.11.8",
   version := "2.0.2",
 
   scalacOptions ++= Seq("-deprecation", "-unchecked"),
