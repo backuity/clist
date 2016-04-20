@@ -35,7 +35,7 @@ class SingleCommandParsingTest extends JunitMatchers with ExitMatchers {
 
   @Test
   def parseNamedArgAtTheEnd(): Unit = {
-    Cli.parse(Array("--1", "--opt2=hehe", "-- target=stuff")).throwExceptionOnError().withCommand(new RunWithOption) { run =>
+    Cli.parse(Array("--1", "--opt2=hehe", "--target=stuff")).throwExceptionOnError().withCommand(new RunWithOption) { run =>
       run.target must_== "stuff"
       run.opt1 must beTrue
       run.opt2 must_== "hehe"
