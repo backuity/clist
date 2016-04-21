@@ -65,6 +65,18 @@ class UsageTest extends JunitMatchers {
             |""".stripMargin
   }
 
+  @Test
+  def doubleUsage(): Unit = {
+    Usage.Default.show("stuff", Commands(DoubleCmd)) must_==
+      ansi"""%underline{Usage}
+            |
+            | %bold{double-cmd} %yellow{[options]}
+            |
+            |%underline{Options}
+            |
+            |   %yellow{--dbl=NUM}
+            |""".stripMargin
+  }
 }
 
 object UsageTest {
@@ -97,4 +109,8 @@ object UsageTest {
     object Dry extends Command with SomeCategoryOptions
 
     object NoOptionCmd extends Command
+
+    object DoubleCmd extends Command {
+      var dbl = opt[Double]()
+    }
 }

@@ -147,7 +147,7 @@ object Usage {
     }
 
     private def showValuesFor(clazz: Class[_]): String = {
-      if (clazz == classOf[Int] || clazz == classOf[Long]) {
+      if (clazz == classOf[Int] || clazz == classOf[Long] || clazz == classOf[Double]) {
         "=NUM"
       } else if (clazz == classOf[String]) {
         "=STRING"
