@@ -3,6 +3,7 @@ package org.backuity.clist
 import java.lang.System.{lineSeparator => crlf}
 
 import org.backuity.ansi.AnsiFormatter.FormattedHelper
+import org.backuity.clist.util.Console
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 

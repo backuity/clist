@@ -1,7 +1,8 @@
 package org.backuity.clist
 
 import org.backuity.ansi.AnsiFormatter.FormattedHelper
-import org.backuity.clist.Formatting.ClassUtil
+import org.backuity.clist.util.{Console, Exit, Formatting}
+import Formatting.{ClassUtil, StringUtil}
 
 class Parser(args: List[String])(implicit console: Console, exit: Exit) {
   private var customProgramName: Option[String] = None
@@ -139,8 +140,8 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
 
   private def guessProgramName: String = {
     val stack = Thread.currentThread.getStackTrace
-    val main = stack.last
-    main.getClass.spinalCaseName
+    val main = stack.last.getClassName
+    main.substring(main.lastIndexOf(".") + 1).toSpinalCase
   }
 
   private def parseVersion(): Boolean = {

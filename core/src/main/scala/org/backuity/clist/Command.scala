@@ -1,6 +1,7 @@
 package org.backuity.clist
 
-import org.backuity.clist.Formatting.ClassUtil
+import org.backuity.clist.util.{ReadException, Formatting}
+import Formatting.ClassUtil
 
 
 /** @param name if not specified the lower-cased class name will be used */

@@ -2,6 +2,7 @@ package org.backuity.clist
 
 import java.io.File
 
+import org.backuity.clist.util.ReadMultiple
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 

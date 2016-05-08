@@ -1,7 +1,8 @@
-package org.backuity.clist
+package org.backuity.clist.util
 
 import java.io.File
 
+import org.backuity.clist.Season
 import org.backuity.matchete.JunitMatchers
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package org.backuity.clist
+package org.backuity.clist.util
 
 import java.io.File
 

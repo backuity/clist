@@ -1,6 +1,7 @@
 package org.backuity.clist
 
-import org.backuity.clist.Formatting.StringUtil
+import org.backuity.clist.util.{Formatting, Read, ReadMultiple}
+import Formatting._
 
 sealed abstract class CliAttribute[T] {
   val tpe: Class[T]

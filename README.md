@@ -38,6 +38,8 @@ Then define a command:
 ```scala
 
   import org.backuity.clist._
+  // or if you do not like wildcard imports:
+  // import org.backuity.clist.{Command, opt, args}
 
   class Cat extends Command(description = "concatenate files and print on the standard output") {
 
@@ -72,7 +74,7 @@ A `Command` can have 3 kinds of attributes:
   - `opt`: an option is always optional and must start with a dash `-`.
            It can have an abbreviated form. Declaration order does not matter.
   - `arg`: an arg might be optional. Argument declaration order matters.
-  - `args`: the equivalent of a var-args. At most one must be specified and it must be declared last.
+  - `args`: the equivalent of a var-args. At most one can be specified and it must be declared last.
 
 
 ## Parsing
@@ -116,6 +118,8 @@ object Person extends Command {
 }
 
 case class Name(firstName: String, lastName: String)
+
+import org.backuity.clist.util.Read
 
 implicit val nameRead = Read.reads[Name] { str =>
   val Array(first,last) = str.split("\\.")

@@ -1,4 +1,4 @@
-package org.backuity.clist
+package org.backuity.clist.util
 
 trait ReadMultiple[A] { self =>
   def reads(many: Seq[String]): A
