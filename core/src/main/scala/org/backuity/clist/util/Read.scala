@@ -26,7 +26,7 @@ object Read {
   implicit val doubleRead: Read[Double] = reads { _.toDouble }
   implicit val booleanRead: Read[Boolean] =
     reads { _.toLowerCase match {
-      case "" | "true" | "yes" | "1" => true
+      case "true" | "yes" | "1" => true
       case "false" | "no" | "0"      => false
       case s =>
         throw new IllegalArgumentException("'" + s + "' is not a boolean.")

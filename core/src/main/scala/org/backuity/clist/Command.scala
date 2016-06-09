@@ -82,8 +82,13 @@ abstract class Command(name: String = null, val description: String = "") extend
       findOptionForArg(newCtx.opts, arg) match {
         case None => throw ParsingException("No option found for " + arg)
         case Some((option, value)) =>
-          // FIXME we're removing blindly...
-          readAndSetVar(option, value)
+          if (value.isEmpty && option.isBoolean) {
+            // invert the default boolean value so that boolean options can be true by
+            // default and enabling them turn them false
+            setVar(option, !option.default.asInstanceOf[Boolean])
+          } else {
+            readAndSetVar(option, value)
+          }
           newCtx = newCtx.validate(option, arg)
       }
     }

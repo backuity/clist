@@ -13,6 +13,9 @@ sealed abstract class CliAttribute[T] {
   val commandAttributeName: String
 
   val description: Option[String]
+
+  /** Whether this attribute is of type `Boolean` */
+  def isBoolean = tpe == classOf[Boolean]
 }
 
 trait SingleArgAttribute[T] { this: CliAttribute[T] =>
@@ -81,15 +84,6 @@ object CliAttribute {
         && clazz != classOf[Boolean]) {
 
         fail("an optional argument that has neither type Option nor Boolean must have a default value")
-      }
-
-      // TODO we really want to forbid setting the default value but we have no way to check that..
-      //      ..it seems that `default: T = null.asInstanceOf[T]` does not get a null for primitive types
-      //      but rather a default value.
-      if (clazz == classOf[Boolean] &&
-        default.asInstanceOf[Boolean] == true) {
-        // use `== true` to make that statement more readable
-        fail(s"a boolean argument cannot have a default value set to true")
       }
 
       (if (default != null) {

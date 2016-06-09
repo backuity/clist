@@ -83,6 +83,12 @@ A `Command` can have 3 kinds of attributes:
 An option (being optional) _must_ have a default value (as we want to avoid `null` for obvious reasons).
 That default value is automatically provided for `Boolean` and `Option` (respectively `false` and `None`).
 
+Note that a boolean option can be true by default, in that case providing it will make it false:
+```scala
+var prettyPrint = opt[Boolean](default = true, name = "no-pretty-print")
+```
+Then on the command line: `cmd --no-pretty-print` will make `prettyPrint` false.
+
 
 ### Abbreviated Option
 

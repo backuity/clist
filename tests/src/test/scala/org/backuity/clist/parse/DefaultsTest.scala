@@ -7,9 +7,27 @@ class DefaultsTest extends ClistTestBase {
   import DefaultsTest._
 
   @Test
+  def trueOptionByDefault(): Unit = {
+    Cli.parse(Array()).withCommand(new TrueOptionByDefault) { cmd =>
+      cmd.opt1 must beTrue
+    }
+
+    Cli.parse(Array("--opt1")).withCommand(new TrueOptionByDefault) { cmd =>
+      cmd.opt1 must beFalse
+    }
+  }
+
+  @Test
   def nonBooleanOptionMustHaveADefault(): Unit = {
     // this will ultimately be a compilation error
     Cli.parse(Array("--missing=ha")).withCommand(new MissingDefaultOption)() must throwAn[IllegalArgumentException].withMessage(
+      "Incorrect argument 'missing': an optional argument that has neither type Option nor Boolean must have a default value")
+  }
+
+  @Test
+  def nonBooleanOptionalArgumentMustHaveADefault(): Unit = {
+    // this will ultimately be a compilation error
+    Cli.parse(Array("ha")).withCommand(new MissingDefaultOptionalArgument)() must throwAn[IllegalArgumentException].withMessage(
       "Incorrect argument 'missing': an optional argument that has neither type Option nor Boolean must have a default value")
   }
 
@@ -74,7 +92,15 @@ object DefaultsTest {
     var opt2 = opt[String](default = "haha")
   }
 
+  class TrueOptionByDefault extends Command {
+    var opt1 = opt[Boolean](default = true)
+  }
+
   class MissingDefaultOption extends Command {
     var missing = opt[String]()
+  }
+
+  class MissingDefaultOptionalArgument extends Command {
+    var missing = arg[String](required = false)
   }
 }
