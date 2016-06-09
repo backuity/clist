@@ -5,7 +5,7 @@ The Backuity CLIST is a scala-only (2.11+) library for quickly building beautifu
 - [You said beautiful](#you-said-beautiful)
 - [Why mutable?](#why-mutable)
 - [Let's start - Single Command CLI](#lets-start---single-command-cli)
-- [Argument vs Arguments vs Options](#argument-vs-arguments-vs-options)
+- [Attributes: Argument vs Arguments vs Options](#attributes-argument-vs-arguments-vs-option)
 - [Parsing](#parsing)
 - [Exit code vs Exception](#exit-code-vs-exception)
 - [Version, Help and Usage](#version-help-and-usage)
@@ -68,14 +68,48 @@ And use it to parse `args`:
   }
 ```
 
-## Argument vs Arguments vs Options
+## Attributes: Argument vs Arguments vs Option
 
 A `Command` can have 3 kinds of attributes:
-  - `opt`: an option is always optional and must start with a dash `-`.
-           It can have an abbreviated form. Declaration order does not matter.
-  - `arg`: an arg might be optional. Argument declaration order matters.
+  - `opt`: an option is always optional and is provided either by `--option-name=value`,
+           or with an abbreviated form such as `-x`.
+           Declaration order does not matter.
+  - `arg`: an argument receives an un-named value as in the command `cat <file>`. It might be optional.
+           Argument declaration order matters.
   - `args`: the equivalent of a var-args. At most one can be specified and it must be declared last.
 
+### Default Option value
+
+An option (being optional) _must_ have a default value (as we want to avoid `null` for obvious reasons).
+That default value is automatically provided for `Boolean` and `Option` (respectively `false` and `None`).
+
+
+### Abbreviated Option
+
+Currently only boolean are supported.
+
+### Optional Argument
+
+An argument can turned optional by setting the `required` attribute to `false`:
+
+```scala
+var target = arg[Option[String]](required = false)
+```
+
+Very much like options, optional arguments _must_ provide a default value for types other than `Boolean` and `Option`.
+
+### Named Argument
+
+An argument can be provided through the command line in the same fashion as options.
+
+```scala
+var target = arg[String]()
+var verbose = opt[Boolean]()
+```
+
+Then on the command line: `cmd --verbose --target=stuff`
+
+Note that when doing so its order become irrelevant (the argument can be provided after options/arguments that were declared after him).
 
 ## Parsing
 

@@ -1,17 +1,14 @@
-package org.backuity.clist
+package org.backuity.clist.parse
 
 import java.lang.System.{lineSeparator => crlf}
 
 import org.backuity.ansi.AnsiFormatter.FormattedHelper
-import org.backuity.clist.util.Console
-import org.backuity.matchete.JunitMatchers
+import org.backuity.clist.{Commands, _}
 import org.junit.Test
 
-class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
+class MultipleCommandTest extends ClistTestBase {
 
-  import MultipleCommandParsingTest._
-
-  implicit val console = new Console.InMemory
+  import MultipleCommandTest._
 
   @Test
   def parseMultipleCommands(): Unit = {
@@ -94,7 +91,7 @@ class MultipleCommandParsingTest extends JunitMatchers with ExitMatchers {
 }
 
 
-object MultipleCommandParsingTest {
+object MultipleCommandTest {
 
   sealed trait GlobalOptions { this : Command =>
     var opt1 = opt[Boolean](name = "1",
