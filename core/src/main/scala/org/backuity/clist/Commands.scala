@@ -1,5 +1,7 @@
 package org.backuity.clist
 
+import org.backuity.ansi.AnsiFormatter.FormattedHelper
+
 /**
   * @param commands a non-empty set of commands
   */
@@ -7,10 +9,16 @@ case class Commands private(options: Set[CliOption[_]],
                             commands: Set[Command]) {
   def size = commands.size
 
+  def labels: Set[String] = commands.map(_.label)
+
   val commandsSortedByLabel = commands.toList.sortBy(_.label)
 
   def findByName(name: String): Option[Command] = {
     commands.find(_.label == name)
+  }
+
+  def ansiList: String = {
+    labels.toList.sorted.map(name => ansi"%bold{$name}").mkString(", ")
   }
 }
 

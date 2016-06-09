@@ -1,5 +1,6 @@
 package org.backuity.clist.parse
 
+import org.backuity.ansi.AnsiFormatter.FormattedHelper
 import org.backuity.clist._
 import org.junit.Test
 
@@ -17,7 +18,7 @@ class ArgumentsTest extends ClistTestBase {
   @Test
   def failMissingMultipleArgs(): Unit = {
     Cli.parse(Array()).throwExceptionOnError().withCommand(new MultiArgs)() must throwA[ParsingException].withMessage(
-      "Insufficient arguments for names")
+      ansi"Insufficient arguments for %bold{names}")
   }
 }
 

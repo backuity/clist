@@ -1,7 +1,7 @@
 package org.backuity.clist
 
 import org.backuity.ansi.AnsiFormatter.FormattedHelper
-import org.backuity.clist.util.{Console, Exit, Formatting}
+import org.backuity.clist.util.{Console, Exit, Formatting, Levenshtein}
 import Formatting.{ClassUtil, StringUtil}
 
 class Parser(args: List[String])(implicit console: Console, exit: Exit) {
@@ -106,16 +106,29 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
     } else {
       withParsingException(commands) {
         args.indexWhere(!_.startsWith("-")) match {
-          case -1 => throw ParsingException("No command found, expected one of " +
-            commands.commands.map(_.label).toList.sorted.map(name => ansi"%bold{$name}").mkString(", "))
+          case -1 => throw ParsingException("No command found, expected one of " + commands.ansiList)
 
           case idx =>
             val (globalOptions, cmdName :: params) = args.splitAt(idx)
             commands.findByName(cmdName) match {
-              case None => throw ParsingException(s"Unknown command '$cmdName'")
+              case None =>
+                val distances: Map[Int, Set[String]] = commands.labels.groupBy(Levenshtein.distance(_, cmdName))
+                val minDistance = distances.keySet.min
+                if (minDistance < 4) {
+                  val siblings = distances(minDistance).map(lbl => ansi"%bold{$lbl}").mkString(", ")
+                  throw ParsingException(s"Unknown command '$cmdName', did you mean " + siblings + "?")
+                } else {
+                  throw ParsingException(s"Unknown command '$cmdName', expected one of " + commands.ansiList)
+                }
+
               case Some(cmd) =>
-                cmd.read(globalOptions ::: params)
-                Some(cmd.asInstanceOf[T])
+                try {
+                  cmd.read(globalOptions ::: params)
+                  Some(cmd.asInstanceOf[T])
+                } catch {
+                  case ParsingException(msg) =>
+                    throw new ParsingException(ansi"Failed to parse command %bold{$cmdName}: $msg")
+                }
             }
         }
       }

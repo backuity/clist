@@ -1,6 +1,7 @@
 package org.backuity.clist.util
 
 import java.io.File
+import java.util.Calendar
 
 import org.backuity.clist.Season
 import org.backuity.matchete.JunitMatchers
@@ -16,10 +17,46 @@ class ReadTest extends JunitMatchers {
 
   @Test
   def incorrectJavaEnum(): Unit = {
-    implicitly[Read[Season]].reads("summr") must throwA[ReadException].`with`("expectations") {
+    implicitly[Read[Season]].reads("summr") must throwA[ReadException].suchAs {
       case ReadException(value, expected) =>
         expected must_== "one of autumn,spring,summer,winter"
         value must_== "summr"
+    }
+  }
+
+  @Test
+  def incorrectInt(): Unit = {
+    implicitly[Read[Int]].reads("blabla") must throwA[ReadException].suchAs {
+      case ReadException(value, expected) =>
+        value must_== "blabla"
+        expected must_== "an Int"
+    }
+  }
+
+  @Test
+  def incorrectLong(): Unit = {
+    implicitly[Read[Long]].reads("blabla") must throwA[ReadException].suchAs {
+      case ReadException(value, expected) =>
+        value must_== "blabla"
+        expected must_== "a Long"
+    }
+  }
+
+  @Test
+  def incorrectDouble(): Unit = {
+    implicitly[Read[Double]].reads("blabla") must throwA[ReadException].suchAs {
+      case ReadException(value, expected) =>
+        value must_== "blabla"
+        expected must_== "a Double"
+    }
+  }
+
+  @Test
+  def incorrectDate(): Unit = {
+    implicitly[Read[Calendar]].reads("blabla") must throwA[ReadException].suchAs {
+      case ReadException(value, expected) =>
+        value must_== "blabla"
+        expected must_== "a date formatted as yyyy-MM-dd"
     }
   }
 

@@ -2,6 +2,7 @@ package org.backuity.clist
 
 import org.backuity.clist.util.{ReadException, Formatting}
 import Formatting.ClassUtil
+import org.backuity.ansi.AnsiFormatter.FormattedHelper
 
 
 /** @param name if not specified the lower-cased class name will be used */
@@ -43,7 +44,7 @@ abstract class Command(name: String = null, val description: String = "") extend
             case None =>
               sCmdArg match {
                 case _: CliMandatoryArgument[_] =>
-                  throw ParsingException("No argument provided for " + cmdArg.name)
+                  throw ParsingException(ansi"No argument provided for %bold{${cmdArg.name}}")
                 case optArg: CliOptionalArgument[_] =>
                   setVar(cmdArg, optArg.default)
               }
@@ -55,7 +56,7 @@ abstract class Command(name: String = null, val description: String = "") extend
 
         case mult: MultipleCliArgument[_] =>
           if (newCtx.remainingArgs.isEmpty) {
-            throw new ParsingException(s"Insufficient arguments for ${mult.name}")
+            throw new ParsingException(ansi"Insufficient arguments for %bold{${mult.name}}")
           } else {
             try {
               val value = mult.reader.reads(newCtx.remainingArgs)
@@ -63,7 +64,7 @@ abstract class Command(name: String = null, val description: String = "") extend
               newCtx = newCtx.validateAllArgs
             } catch {
               case ReadException(value, expected) =>
-                throw new ParsingException(s"Incorrect parameter ${mult.name} '$value', expected $expected")
+                throw new ParsingException(s"Incorrect value for argument %bold{${mult.name}}, got '$value', expected $expected")
             }
           }
       }
@@ -129,7 +130,11 @@ abstract class Command(name: String = null, val description: String = "") extend
       setVar(arg, value)
     } catch {
       case ReadException(value, expected) =>
-        throw new ParsingException(s"Incorrect parameter ${arg.name} '$value', expected $expected")
+        val attributeName = arg match {
+          case _: CliArgument[_] => "argument"
+          case _: CliOption[_] => "option"
+        }
+        throw new ParsingException(ansi"Incorrect value for $attributeName %bold{${arg.name}}, got '$value', expected $expected")
     }
   }
 

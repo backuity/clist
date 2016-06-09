@@ -22,34 +22,8 @@ class MultipleCommandTest extends ClistTestBase {
   }
 
   @Test
-  def noCommandSpecified(): Unit = {
-    Cli.parse(Array("--1")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
-      ansi"No command found, expected one of %bold{cho}, %bold{dry}, %bold{run}")
-    Cli.parse(Array()).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
-      ansi"No command found, expected one of %bold{cho}, %bold{dry}, %bold{run}")
-  }
-
-  @Test
-  def incorrectArgument_Enum(): Unit = {
-    Cli.parse(Array("--season=summr", "cho")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
-      "Incorrect parameter season 'summr', expected one of autumn,spring,summer,winter")
-  }
-
-  @Test
   def noOptionCommand(): Unit = {
     Cli.parse(Array("cho")).withCommands(Run,Show,Dry) must_== Some(Show)
-  }
-
-  @Test
-  def wrongCommandShouldPrintErrorAndExit(): Unit = {
-    Cli.parse(Array("baaad")).noUsageOnError().exitCode(123).withCommands(Run,Show,Dry) must exitWithCode(123)
-    console.content must_== ("Unknown command 'baaad'" + crlf)
-  }
-
-  @Test
-  def wrongCommandShouldThrowAParsingException(): Unit = {
-    Cli.parse(Array("baaad")).throwExceptionOnError().withCommands(Run,Show,Dry) must throwA[ParsingException].withMessage(
-      "Unknown command 'baaad'")
   }
 
   @Test
@@ -77,16 +51,6 @@ class MultipleCommandTest extends ClistTestBase {
   def overrideVersionCommand(): Unit = {
     Cli.parse(Array("--vers")).version("1.0.x", command = "--vers").withCommands(Run,Show,Dry) must_== None
     console.content must_== ("1.0.x" + crlf)
-  }
-
-  @Test
-  def incorrectCommandOption(): Unit = {
-    Cli.parse(Array("run", "--unknown-option", "target"))
-        .withProgramName("x")
-        .withCommands(Run,Show,Dry) must exitWithCode(1)
-
-    console.content must_== (Usage.Default.show("x",Commands(Run,Show,Dry)) + crlf +
-      "No option found for --unknown-option" + crlf)
   }
 }
 

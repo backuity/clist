@@ -34,6 +34,10 @@ object Console {
       buffer.append(message)
     }
 
+    def clear(): Unit = {
+      buffer.setLength(0)
+    }
+
     def content: String = buffer.toString
 
     override def toString: String = {
