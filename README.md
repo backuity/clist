@@ -74,7 +74,7 @@ import java.io.File
 
 import org.backuity.clist._
 
-object CatDemo extends CliMain(
+object CatDemo extends CliMain[Unit](
   name = "cat",
   description = "concatenate files and print on the standard output") {
 
