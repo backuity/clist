@@ -234,7 +234,7 @@ object Run extends Command with Common
 object Show extends Command with Common
 
 val res = Cli.parse(args).withCommands(Run, Show)
-// res is also now infered as an `Option[Common]`
+// res is also now inferred as an `Option[Common]`
 ```
 
 You can also seal your command hierarchy to allow exhaustive pattern matching checks:
