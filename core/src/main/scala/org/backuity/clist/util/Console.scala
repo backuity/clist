@@ -23,10 +23,12 @@ object Console {
     private val buffer = new StringBuffer
 
     def print(message: Any): Unit = {
+      scala.Console.print(message)
       append(message.toString)
     }
 
     def println(message: Any): Unit = {
+      scala.Console.println(message)
       append(message.toString + System.lineSeparator())
     }
 

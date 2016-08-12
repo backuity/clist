@@ -31,6 +31,15 @@ class ArgumentTest extends ClistTestBase {
       cmd.other must_== 3
     }
   }
+
+  @Test
+  def parseSameArgumentMultipleTimes(): Unit = {
+    Cli.parse(Array("same", "same", "3")).withCommand(new MultiArgAttributes) { cmd =>
+      cmd.argOne must_== "same"
+      cmd.arg2 must_== "same"
+      cmd.other must_== 3
+    }
+  }
 }
 
 object ArgumentTest {

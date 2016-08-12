@@ -191,13 +191,13 @@ object Command {
     def firstArg: Option[String] = remainingArgs.headOption
 
     def validate(cmdArg: CliArgument[_] with SingleArgAttribute[_], arg: String): ParseContext = {
-      new ParseContext(args.filter(_ != cmdArg), opts, remainingArgs.filter(_ != arg))
+      new ParseContext(args.filter(_ != cmdArg), opts, removeAt(remainingArgs, remainingArgs.indexOf(arg)))
     }
 
     def validateAllArgs: ParseContext = new ParseContext(args, opts, Nil)
 
     def validate(opt: CliOption[_], arg: String): ParseContext = {
-      new ParseContext(args, opts.filter(_ != opt), remainingArgs.filter(_ != arg))
+      new ParseContext(args, opts.filter(_ != opt), removeAt(remainingArgs, remainingArgs.indexOf(arg)))
     }
 
     /**
@@ -207,6 +207,10 @@ object Command {
       remainingArgs.find(_.startsWith("--" + name + "=")).map { arg =>
         (arg, arg.substring(arg.indexOf("=") + 1))
       }
+    }
+
+    private def removeAt[T](lst: List[T], index: Int) : List[T] = {
+      lst.patch(index, Nil, 1)
     }
   }
 
