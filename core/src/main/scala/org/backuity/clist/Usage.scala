@@ -18,11 +18,11 @@ object Usage {
       var indentLevel = 0
       var beginning = true
 
-      @inline def incIndent(): Unit = { indentLevel += 1 }
-      @inline def decIndent(): Unit = { indentLevel -= 1 }
-      @inline def indent(f: => Unit): Unit = { incIndent(); f; decIndent() }
+      @inline def incIndent(): Unit = {indentLevel += 1}
+      @inline def decIndent(): Unit = {indentLevel -= 1}
+      @inline def indent(f: => Unit): Unit = {incIndent(); f; decIndent()}
 
-      @inline def addLine(str: String = ""): Unit = { add(str + "\n") }
+      @inline def addLine(str: String = ""): Unit = {add(str + "\n")}
       def add(str: String): Unit = {
         if (str.trim.isEmpty) {
           // do not pad for nothing
@@ -64,6 +64,16 @@ object Usage {
         }
       }
 
+      /** @param args non empty */
+      def addArguments(args: List[CliArgument[_]]): Unit = {
+        val labelMaxSize = args.map(_.name.length).max
+
+        for (arg <- args.sortBy(_.name)) {
+          if (arg.description != None)
+          addLine(argText(labelMaxSize, arg))
+        }
+      }
+
       addLine(ansi"%underline{Usage}")
       addLine()
       if (commands.size == 1) {
@@ -76,6 +86,12 @@ object Usage {
           addLine()
           indent {
             addOptions(command.options)
+          }
+          addLine()
+          addLine(ansi"%underline{Arguments}")
+          addLine()
+          indent {
+            addArguments(command.arguments)
           }
         }
       } else {
@@ -98,10 +114,15 @@ object Usage {
             addCommandSynopsis(command, commandSpecificOpts, optionLabel = "command options")
 
             // body
-            // TODO args
             if (commandSpecificOpts.nonEmpty) {
               indent {
                 addOptions(commandSpecificOpts)
+              }
+              val commandSpecificArgs = command.arguments
+              if (commandSpecificArgs.nonEmpty) {
+                indent {
+                  addArguments(commandSpecificArgs)
+                }
               }
             }
           }
@@ -156,11 +177,26 @@ object Usage {
       } else ""
     }
 
+
+    private def argText(labelMaxSize: Int, arg: CliArgument[_]): String = {
+      val label = s"<${arg.name}>"
+      val description = arg.description.getOrElse("")
+      val padding = " " * (labelMaxSize - label.length)
+      val lineBreakPadding = " " * (labelMaxSize + 3 /* 3 = " : " */)
+      val indentedDescription = description.replaceAll("\n", "\n" + lineBreakPadding)
+
+      ansi"%black{$label}" + (if (description.isEmpty) {
+        ""
+      } else {
+        padding + " : " + indentedDescription
+      })
+    }
+
     private def showArg(arg: CliArgument[_]): String = {
       arg match {
         case _: CliMandatoryArgument[_] => s"<${arg.name}>"
-        case _: CliOptionalArgument[_] =>  s"[<${arg.name}>]"
-        case _: MultipleCliArgument[_] =>  s"<${arg.name}> ..."
+        case _: CliOptionalArgument[_] => s"[<${arg.name}>]"
+        case _: MultipleCliArgument[_] => s"<${arg.name}> ..."
       }
     }
   }
