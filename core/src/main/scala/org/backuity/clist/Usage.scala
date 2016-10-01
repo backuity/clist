@@ -87,6 +87,8 @@ object Usage {
           indent {
             addOptions(command.options)
           }
+        }
+        if (command.arguments.nonEmpty  && command.arguments.exists(_.description != None)) {
           addLine()
           addLine(ansi"%underline{Arguments}")
           addLine()
@@ -94,6 +96,7 @@ object Usage {
             addArguments(command.arguments)
           }
         }
+
       } else {
         // commands.size > 1
         addLine(ansi" %bold{$programName} %yellow{[options]} %bold{command} %yellow{[command options]}")
