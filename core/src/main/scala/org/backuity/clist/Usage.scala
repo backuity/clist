@@ -68,8 +68,8 @@ object Usage {
       def addArguments(args: List[CliArgument[_]]): Unit = {
         val labelMaxSize = args.map(_.name.length).max
 
-        for (arg <- args.sortBy(_.name)) {
-          if (arg.description != None)
+        for (arg <- args) {
+          if (arg.description.isDefined)
           addLine(argText(labelMaxSize, arg))
         }
       }
@@ -88,7 +88,7 @@ object Usage {
             addOptions(command.options)
           }
         }
-        if (command.arguments.nonEmpty  && command.arguments.exists(_.description != None)) {
+        if (command.arguments.nonEmpty && command.arguments.exists(_.description.isDefined)) {
           addLine()
           addLine(ansi"%underline{Arguments}")
           addLine()
@@ -188,7 +188,7 @@ object Usage {
       val lineBreakPadding = " " * (labelMaxSize + 3 /* 3 = " : " */)
       val indentedDescription = description.replaceAll("\n", "\n" + lineBreakPadding)
 
-      ansi"%black{$label}" + (if (description.isEmpty) {
+      label + (if (description.isEmpty) {
         ""
       } else {
         padding + " : " + indentedDescription

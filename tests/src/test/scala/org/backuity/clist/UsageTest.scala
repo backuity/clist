@@ -34,6 +34,8 @@ class UsageTest extends JunitMatchers {
             |      %yellow{--A=NUM}
             |      %yellow{--opt-b}            : some flag
             |      %yellow{--run-specific=NUM}
+            |      <target> : the target to run
+            |      <optArg> : an optional argument
             |""".stripMargin
   }
 
@@ -53,6 +55,11 @@ class UsageTest extends JunitMatchers {
             |                                          it really rocks
             |   %yellow{--run-specific=NUM}
             |   %yellow{--season=winter|spring|summer|autumn}
+            |
+            |%underline{Arguments}
+            |
+            |   <target> : the target to run
+            |   <optArg> : an optional argument
             |""".stripMargin
   }
 
@@ -96,8 +103,8 @@ object UsageTest {
     }
 
     object Run extends Command(description = "run run baby run") with SomeCategoryOptions {
-        var target = arg[String]()
-        var optArg = arg[Long](default = 42L, required = false)
+        var target = arg[String](description = "the target to run")
+        var optArg = arg[Long](default = 42L, required = false, description = "an optional argument")
 
         var runSpecific = opt[Long](default = 123L)
     }
