@@ -1,8 +1,9 @@
 lazy val commonSettings = Seq(
   organization := "org.backuity.clist",
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.12.0",
   version := "3.2.2",
 
+  crossScalaVersions := Seq("2.11.8", "2.12.0"),
   scalacOptions ++= Seq("-deprecation", "-unchecked"),
 
   // use intransitive to avoid getting scala-reflect transitively
@@ -50,9 +51,9 @@ lazy val localSettings = commonSettings ++ Seq(
   publishLocal := {}
 )
 
-val ansi = "org.backuity" %% "ansi-interpolator" % "1.1" % "compileonly"
+val ansi = "org.backuity" %% "ansi-interpolator" % "1.1.0" % "compileonly"
 val matchete = Seq(
-  "org.backuity" %% "matchete-junit" % "1.26" % "test",
+  "org.backuity" %% "matchete-junit" % "1.28.0" % "test",
   "com.novocode" % "junit-interface" % "0.11" % "test")
 val mockito = "org.mockito" % "mockito-core" % "1.10.8" % "test"
 

@@ -38,7 +38,7 @@ object Main {
 
   case class Name(firstName: String, lastName: String)
 
-  implicit val nameRead = Read.reads[Name]("a Name") { str =>
+  implicit val nameRead: Read[Name] = Read.reads[Name]("a Name") { str =>
     val Array(first,last) = str.split("\\.")
     Name(first,last)
   }
