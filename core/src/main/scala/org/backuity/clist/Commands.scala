@@ -7,7 +7,7 @@ import org.backuity.ansi.AnsiFormatter.FormattedHelper
   */
 case class Commands private(options: Set[CliOption[_]],
                             commands: Set[Command]) {
-  def size = commands.size
+  def size: Int = commands.size
 
   def labels: Set[String] = commands.map(_.label)
 
