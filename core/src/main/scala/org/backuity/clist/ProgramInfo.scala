@@ -1,5 +1,7 @@
 package org.backuity.clist
 
+import scala.language.implicitConversions
+
 /**
   * Bring more info about this project into Usage.show()
   *
@@ -10,4 +12,8 @@ private final case class ProgramInfo(name: String,
                                      fullDescription: Option[String] = None,
                                      author: Set[String] = Set.empty,
                                      license: Option[String] = None,
-                                     custom: Map[String,(String, String)] = Map.empty)
+                                     custom: Map[String, (String, String)] = Map.empty)
+
+private object ProgramInfo {
+  implicit def byName(name: String): ProgramInfo = ProgramInfo(name)
+}
