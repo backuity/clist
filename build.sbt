@@ -1,9 +1,9 @@
 lazy val commonSettings = Seq(
   organization := "org.backuity.clist",
-  scalaVersion := "2.12.0",
-  version := "3.2.2",
+  scalaVersion := "2.12.2",
+  version := "3.3.0-SNAPSHOT",
 
-  crossScalaVersions := Seq("2.11.8", "2.12.0"),
+  crossScalaVersions := Seq("2.11.11", "2.12.2"),
   scalacOptions ++= Seq("-deprecation", "-unchecked"),
 
   // use intransitive to avoid getting scala-reflect transitively

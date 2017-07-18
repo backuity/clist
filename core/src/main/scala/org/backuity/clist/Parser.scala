@@ -6,6 +6,8 @@ import Formatting.{ClassUtil, StringUtil}
 
 class Parser(args: List[String])(implicit console: Console, exit: Exit) {
   private var customProgramName: Option[String] = None
+  private var shortDescription: Option[String] = None
+  private var fullDescription: Option[String] = None
   private var version: Option[String] = None
   private var versionCmd: Option[String] = None
   private var helpCmd: Option[String] = Some("help")
@@ -14,6 +16,15 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
   private var exceptionOnError: Boolean = false
   private val defaultExitCode: Int = 1
   private var customExitCode: Option[Int] = None
+
+  /**
+    * Add descriptions.
+    */
+  def withDescription(shortDescription: String, fullDescription: Option[String] = None): Parser = {
+    this.shortDescription = Option(shortDescription)
+    this.fullDescription = fullDescription
+    this
+  }
 
   /**
     * Specify a version for this program. It adds a version command and prints it
@@ -127,7 +138,7 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
                   Some(cmd.asInstanceOf[T])
                 } catch {
                   case ParsingException(msg) =>
-                    throw new ParsingException(ansi"Failed to parse command %bold{$cmdName}: $msg")
+                    throw ParsingException(ansi"Failed to parse command %bold{$cmdName}: $msg")
                 }
             }
         }
@@ -147,6 +158,13 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
     }
   }
 
+  /** Extract information from this parser to a ProgramInfo. */
+  private def programInfo: ProgramInfo = ProgramInfo(
+    name = this.programName,
+    shortDescription = this.shortDescription,
+    fullDescription = this.fullDescription
+  )
+
   private def programName: String = {
     customProgramName.getOrElse(guessProgramName)
   }
@@ -158,14 +176,14 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
   }
 
   private def parseVersion(): Boolean = {
-    withFirstArg { case arg if versionCmd == Some(arg) =>
+    withFirstArg { case arg if versionCmd.contains(arg) =>
       console.println(version.get)
     }
   }
 
   private def parseHelp(commands: Commands): Boolean = {
-    withFirstArg { case arg if helpCmd == Some(arg) =>
-      console.println(usage.show(programName, commands))
+    withFirstArg { case arg if helpCmd.contains(arg) =>
+      console.println(usage.show(programInfo, commands))
     }
   }
 
@@ -186,7 +204,7 @@ class Parser(args: List[String])(implicit console: Console, exit: Exit) {
 
   private def fail(error: Either[String, ParsingException], commands: Commands): Nothing = {
     if (showUsageOnError) {
-      console.println(usage.show(programName, commands))
+      console.println(usage.show(programInfo, commands))
     }
     if (exceptionOnError) {
       error match {

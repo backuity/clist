@@ -1,7 +1,7 @@
 package org.backuity.clist
 
 trait Usage {
-  def show(programName: String, commands: Commands): String
+  def show(programInfo: ProgramInfo, commands: Commands): String
 }
 
 object Usage {
@@ -12,7 +12,7 @@ object Usage {
 
     private val indentString = "   "
 
-    override def show(programName: String, commands: Commands): String = {
+    override def show(programInfo: ProgramInfo, commands: Commands): String = {
 
       val usage = new java.lang.StringBuilder()
       var indentLevel = 0
@@ -74,6 +74,22 @@ object Usage {
         }
       }
 
+      //Add [Name] section for short description
+      programInfo.shortDescription.foreach{dscr=>
+        addLine(ansi"%underline{Name}")
+        addLine()
+        addLine(ansi"%bold{${programInfo.name}} - $dscr")
+        addLine()
+      }
+
+      //Add [Description] section for full description
+      programInfo.fullDescription.foreach{dscr=>
+        addLine(ansi"%underline{Description}")
+        addLine()
+        addLine(dscr)
+        addLine()
+      }
+
       addLine(ansi"%underline{Usage}")
       addLine()
       if (commands.size == 1) {
@@ -99,7 +115,7 @@ object Usage {
 
       } else {
         // commands.size > 1
-        addLine(ansi" %bold{$programName} %yellow{[options]} %bold{command} %yellow{[command options]}")
+        addLine(ansi" %bold{${programInfo.name}} %yellow{[options]} %bold{command} %yellow{[command options]}")
         if (commands.options.nonEmpty) {
           addLine()
           addLine(ansi"%underline{Options}")
