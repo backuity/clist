@@ -51,10 +51,15 @@ lazy val localSettings = commonSettings ++ Seq(
   publishLocal := {}
 )
 
-val ansi = "org.backuity" %% "ansi-interpolator" % "1.1.0" % "compileonly"
-val matchete = Seq(
-  "org.backuity" %% "matchete-junit" % "1.28.0" % "test",
-  "com.novocode" % "junit-interface" % "0.11" % "test")
+def ansi(scalaBinaryVersion: String) = {
+  val version = if (scalaBinaryVersion == "2.11") "1.1" else "1.1.0"
+  "org.backuity" %% "ansi-interpolator" % version % "compileonly"
+}
+def matchete(scalaBinaryVersion: String) = {
+  val version = if (scalaBinaryVersion == "2.11") "1.26" else "1.28.0"
+  "org.backuity" %% "matchete-junit" % version % "test"
+}
+val junit = "com.novocode" % "junit-interface" % "0.11" % "test"
 val mockito = "org.mockito" % "mockito-core" % "1.10.8" % "test"
 
 lazy val root = project.in(file(".")).
@@ -71,7 +76,9 @@ lazy val core = project.in(file("core")).
   settings(releaseSettings: _*).
   settings(
     name := "clist-core",
-    libraryDependencies ++= matchete :+ ansi :+ mockito)
+    libraryDependencies ++= Seq(
+      ansi(scalaBinaryVersion.value),
+      matchete(scalaBinaryVersion.value), junit, mockito))
 
 lazy val macros = project.in(file("macros")).
   settings(releaseSettings: _*).
@@ -83,7 +90,9 @@ lazy val macros = project.in(file("macros")).
 lazy val tests = project.in(file("tests")).
   settings(localSettings: _*).
   settings(
-    libraryDependencies ++= matchete :+ ansi).
+    libraryDependencies ++= Seq(
+      ansi(scalaBinaryVersion.value),
+      junit, matchete(scalaBinaryVersion.value))).
   dependsOn(
     core,
     macros) // % "compileonly") does not work!
