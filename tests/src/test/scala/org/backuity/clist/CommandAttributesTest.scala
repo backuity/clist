@@ -21,7 +21,7 @@ class CommandAttributesTest extends JunitMatchers {
 
   @Test
   def argsOrderMustBeDeclarationOrder(): Unit = {
-    MultiArgsAndSingleArg.arguments.map(_.name) must_== List("className", "otherArg", "classArgs")
+    MultiArgsAndSingleArg.arguments.map(_.name) must_== List("class-name", "other-arg", "class-args")
   }
 
   @Test

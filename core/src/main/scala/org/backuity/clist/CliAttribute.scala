@@ -150,6 +150,8 @@ object CliOption {
 object CliArgument {
   class Builder[T: Read : Manifest](command: Command, varName: String) extends CliAttribute.Builder[T](varName) {
 
+    private val spinalCasedVarName = varName.toSpinalCase
+
     /**
       * - unless it is a boolean, an optional argument must have a default value
       * - a boolean cannot have a default value (we want to avoid a boolean being true
@@ -171,7 +173,7 @@ object CliArgument {
         command.enqueueArgument(CliMandatoryArgument(
           tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
           commandAttributeName = varName,
-          name                 = Option(name).getOrElse(varName.trim),
+          name                 = Option(name).getOrElse(spinalCasedVarName.trim),
           description          = Option(description))(implicitly[Read[T]]))
       } else {
 
@@ -180,7 +182,7 @@ object CliArgument {
         command.enqueueArgument(CliOptionalArgument(
           tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
           commandAttributeName = varName,
-          name                 = Option(name).getOrElse(varName.trim),
+          name                 = Option(name).getOrElse(spinalCasedVarName.trim),
           description          = Option(description),
           default              = nonNullDefault)(implicitly[Read[T]]))
       }
@@ -204,7 +206,7 @@ object MultipleCliArgument {
       command.enqueueArgument(MultipleCliArgument(
         tpe                  = manifest[T].runtimeClass.asInstanceOf[Class[T]],
         commandAttributeName = varName,
-        name                 = Option(name).getOrElse(varName.trim),
+        name                 = Option(name).getOrElse(varName.toSpinalCase.trim),
         description          = Option(description))(
         implicitly[ReadMultiple[T]]))
 
