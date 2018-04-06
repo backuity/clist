@@ -60,6 +60,7 @@ case class CliOption[T](tpe: Class[T],
                         longName: Option[String],
                         description: Option[String],
                         abbrev: Option[String],
+                        useEnv: Option[Boolean],
                         default: T)(val reader: Read[T]) extends CliAttribute[T] with SingleArgAttribute[T] {
 
   val name = longName.getOrElse(abbrev.get)
@@ -116,6 +117,7 @@ object CliOption {
                       description: String = null,
                       abbrev: String = null,
                       abbrevOnly: String = null,
+                      useEnv: Boolean = false,
                       default: T = null.asInstanceOf[T]): T = {
 
       // TODO check those at compile time (when SI-5920 gets fixed)
@@ -140,6 +142,7 @@ object CliOption {
         longName    = longName,
         description = Option(description),
         abbrev      = Option(abbrevOnly).orElse(Option(abbrev)),
+        useEnv      = Some(useEnv),
         default     = nonNullDefault)(implicitly[Read[T]]))
 
       default

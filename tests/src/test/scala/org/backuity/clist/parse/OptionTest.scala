@@ -20,6 +20,28 @@ class OptionTest extends ClistTestBase {
     console.content must_== (Usage.Default.show("x",Commands(new Run)) + crlf +
       "No option found for --unknown-option" + crlf)
   }
+
+  @Test
+  def useDefaultValueForMissingEnvVar(): Unit = {
+    Cli.parse(Array()).withCommand(EnvRun)() must_== Some(EnvRun)
+    EnvRun.missingEnvOpt must_== "defaultValue"
+    EnvRun.exportedEnvOpt must_== "fooBarBaz"
+  }
+
+  @Test
+  def useExplicitValueForMissingEnvVar(): Unit = {
+    Cli.parse(Array("--missing-env-opt=explicitValue")).withCommand(EnvRun)() must_== Some(EnvRun)
+    EnvRun.missingEnvOpt must_== "explicitValue"
+    EnvRun.exportedEnvOpt must_== "fooBarBaz"
+  }
+
+  @Test
+  def overrideExportedEnvVarWithExplicitValue(): Unit = {
+    Cli.parse(Array("--exported-env-opt=explicitValue", "--missing-env-opt=explicitValue")).withCommand(EnvRun)() must_== Some(EnvRun)
+    EnvRun.missingEnvOpt must_== "explicitValue"
+    EnvRun.exportedEnvOpt must_== "explicitValue"
+  }
+
 }
 
 object OptionTest {
@@ -27,4 +49,10 @@ object OptionTest {
   class Run extends Command {
     var opt1 = opt[Boolean](abbrev = "o")
   }
+
+  object EnvRun extends Command {
+    var missingEnvOpt = opt[String](useEnv = true, default = "defaultValue")
+    var exportedEnvOpt = opt[String](useEnv = true, default = "shouldBeNeverUsed")
+  }
+
 }

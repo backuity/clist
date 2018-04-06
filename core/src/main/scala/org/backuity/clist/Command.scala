@@ -95,7 +95,13 @@ abstract class Command(name: String = null, val description: String = "") extend
     }
 
     for (option <- newCtx.opts) {
-      setVar(option, option.default)
+      if (option.useEnv.contains(true)) {
+        val envVarName = option.name.replace("-", "_").toUpperCase
+        val envVarOrDefault = sys.env.getOrElse(envVarName, option.default)
+        setVar(option, envVarOrDefault)
+      } else {
+        setVar(option, option.default)
+      }
     }
 
     newCtx
