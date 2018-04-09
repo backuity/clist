@@ -90,6 +90,8 @@ lazy val macros = project.in(file("macros")).
 lazy val tests = project.in(file("tests")).
   settings(localSettings: _*).
   settings(
+    fork in Test := true,
+    envVars in Test := Map("EXPORTED_ENV_OPT" -> "fooBarBaz"),
     libraryDependencies ++= Seq(
       ansi(scalaBinaryVersion.value),
       junit, matchete(scalaBinaryVersion.value))).
