@@ -73,6 +73,22 @@ class UsageTest extends JunitMatchers {
   }
 
   @Test
+  def noOptionCmdUsageWithArgs(): Unit = {
+    Usage.Default.show("program-name", Commands(NoOptionCmd, NoOptionCmdWithArgs)) must_==
+      ansi"""%underline{Usage}
+            |
+            | %bold{program-name} %yellow{[options]} %bold{command} %yellow{[command options]}
+            |
+            |%underline{Commands}
+            |
+            |   %bold{no-option-cmd}
+            |
+            |   %bold{no-option-cmd-with-args} <target>
+            |      <target> : ze target
+            |""".stripMargin
+  }
+
+  @Test
   def doubleUsage(): Unit = {
     Usage.Default.show("stuff", Commands(DoubleCmd)) must_==
       ansi"""%underline{Usage}
@@ -116,6 +132,10 @@ object UsageTest {
     object Dry extends Command with SomeCategoryOptions
 
     object NoOptionCmd extends Command
+
+    object NoOptionCmdWithArgs extends Command {
+      var target = arg[String](description = "ze target")
+    }
 
     object DoubleCmd extends Command {
       var dbl = opt[Double]()
