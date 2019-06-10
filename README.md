@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/backuity/clist.png?branch=master)](https://travis-ci.org/backuity/clist)
 [![Latest release for 2.11](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/backuity/clist/clist-core_2.11/maven-metadata.xml.svg?label=scala%202.11)](https://maven-badges.herokuapp.com/maven-central/org.backuity.clist/clist-core_2.11)
 [![Latest release for 2.12](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/backuity/clist/clist-core_2.12/maven-metadata.xml.svg?label=scala%202.12)](https://maven-badges.herokuapp.com/maven-central/org.backuity.clist/clist-core_2.12)
+[![Latest release for 2.13](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/backuity/clist/clist-core_2.13/maven-metadata.xml.svg?label=scala%202.13)](https://maven-badges.herokuapp.com/maven-central/org.backuity.clist/clist-core_2.13)
 
 The Backuity CLIST is a scala-only (2.11+) library for quickly building beautiful type-safe modular and reusable mutable CLIs.
 
