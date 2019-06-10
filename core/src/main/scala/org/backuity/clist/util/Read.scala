@@ -20,8 +20,8 @@ object Read {
   import java.text.SimpleDateFormat
   import java.util.{Calendar, GregorianCalendar, Locale}
 
-  def reads[A](expecting: String)(f: String => A): Read[A] = new Read[A] {
-    def reads(string: String): A = {
+  def reads[A](expecting: String)(f: String => A): Read[A] =
+    (string: String) => {
       try {
         f(string)
       } catch {
@@ -29,7 +29,6 @@ object Read {
           throw new ReadException(string, expected = expecting)
       }
     }
-  }
 
   implicit val intRead: Read[Int] = reads("an Int") { _.toInt }
   implicit val stringRead: Read[String] = reads(""){ identity }
@@ -59,7 +58,7 @@ object Read {
   }
 
   implicit def seqRead[T](implicit readT: Read[T]): Read[Seq[T]] = reads("") { str =>
-    str.split("\\p{Blank}+").map { readT.reads }
+    str.split("\\p{Blank}+").toSeq.map { readT.reads }
   }
 
   implicit val yyyymmdddRead: Read[Calendar] = calendarRead("yyyy-MM-dd")

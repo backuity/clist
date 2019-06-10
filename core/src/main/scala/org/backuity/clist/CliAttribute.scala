@@ -72,7 +72,7 @@ object CliAttribute {
 
     val clazz: Class[_] = manifest[T].runtimeClass
 
-    def fail(msg: String) {
+    def fail(msg: String): Unit = {
       throw new IllegalArgumentException(s"Incorrect argument '$varName': $msg")
     }
 

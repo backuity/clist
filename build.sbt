@@ -1,13 +1,15 @@
 lazy val CommonSettings = Seq(
   organization := "org.backuity.clist",
-  scalaVersion := "2.12.2",
+  scalaVersion := "2.13.0",
   version := "3.5.1",
 
-  crossScalaVersions := Seq("2.11.11", "2.12.2"),
+  crossScalaVersions := Seq("2.12.8", "2.13.0"),
   scalacOptions ++= Seq("-deprecation", "-unchecked"),
 
   // use intransitive to avoid getting scala-reflect transitively
   ivyConfigurations += config("compileonly").intransitive.hide,
+
+  useGpg := true,
 
   unmanagedClasspath in Compile ++= update.value.select(configurationFilter("compileonly")),
   unmanagedClasspath in Test ++= update.value.select(configurationFilter("compileonly"))
@@ -51,16 +53,10 @@ lazy val localSettings = CommonSettings ++ Seq(
   publishLocal := {}
 )
 
-def ansi(scalaBinaryVersion: String) = {
-  val version = if (scalaBinaryVersion == "2.11") "1.1" else "1.1.0"
-  "org.backuity" %% "ansi-interpolator" % version % "compileonly"
-}
-def matchete(scalaBinaryVersion: String) = {
-  val version = if (scalaBinaryVersion == "2.11") "1.26" else "1.28.0"
-  "org.backuity" %% "matchete-junit" % version % "test"
-}
 val junit = "com.novocode" % "junit-interface" % "0.11" % "test"
 val mockito = "org.mockito" % "mockito-core" % "1.10.8" % "test"
+val ansi = "org.backuity" %% "ansi-interpolator" % "1.1.0" % "compileonly"
+val matchete = "org.backuity" %% "matchete-junit" % "1.29.1" % "test"
 
 lazy val root = project.in(file(".")).
   settings(releaseSettings : _*).
@@ -76,9 +72,7 @@ lazy val core = project.in(file("core")).
   settings(releaseSettings: _*).
   settings(
     name := "clist-core",
-    libraryDependencies ++= Seq(
-      ansi(scalaBinaryVersion.value),
-      matchete(scalaBinaryVersion.value), junit, mockito))
+    libraryDependencies ++= Seq(ansi, matchete, junit, mockito))
 
 lazy val macros = project.in(file("macros")).
   settings(releaseSettings: _*).
@@ -92,9 +86,7 @@ lazy val tests = project.in(file("tests")).
   settings(
     fork in Test := true,
     envVars in Test := Map("EXPORTED_ENV_OPT" -> "fooBarBaz", "INT_ENV_OPT" -> "4"),
-    libraryDependencies ++= Seq(
-      ansi(scalaBinaryVersion.value),
-      junit, matchete(scalaBinaryVersion.value))).
+    libraryDependencies ++= Seq(ansi, junit, matchete)).
   dependsOn(
     core,
     macros) // % "compileonly") does not work!
